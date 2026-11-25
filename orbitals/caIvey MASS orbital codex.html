@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CUBE VARIATION ENGINE</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --bg-2: #0b0b0a;
+      --panel: rgba(15, 15, 14, 0.76);
+      --panel-strong: rgba(20, 19, 17, 0.9);
+      --line: rgba(232, 226, 210, 0.13);
+      --line-strong: rgba(232, 226, 210, 0.24);
+      --text: #ece7db;
+      --muted: #9c978b;
+      --dim: #6e6a60;
+      --accent: #c8a75b;
+      --accent-2: #edd083;
+      --green: #a8b79a;
+      --danger: #b56c58;
+      --mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 52% 24%, rgba(200, 167, 91, 0.08), transparent 32%),
+        radial-gradient(circle at 74% 74%, rgba(124, 130, 118, 0.08), transparent 34%),
+        linear-gradient(135deg, #040404 0%, #10100f 52%, #050505 100%);
+      font-family: var(--sans);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.34;
+      background-image:
+        linear-gradient(rgba(232, 226, 210, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232, 226, 210, 0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0.76) 48%, transparent 100%);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-height: 680px;
+      isolation: isolate;
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      z-index: 0;
+    }
+
+    #scene:active {
+      cursor: grabbing;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 18px;
+      left: 24px;
+      right: 24px;
+      z-index: 3;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      pointer-events: none;
+    }
+
+    .brand {
+      max-width: 820px;
+      text-shadow: 0 16px 46px rgba(0, 0, 0, 0.72);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(31px, 4.4vw, 64px);
+      font-weight: 400;
+      line-height: 0.92;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin: 11px 0 0;
+      color: rgba(236, 231, 219, 0.64);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    .seed-tag {
+      min-width: 148px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: rgba(8, 8, 7, 0.42);
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-align: right;
+      text-transform: uppercase;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 24px 90px rgba(0, 0, 0, 0.48);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .controls {
+      position: absolute;
+      left: 22px;
+      top: 164px;
+      bottom: 78px;
+      z-index: 3;
+      width: min(352px, calc(100vw - 44px));
+      overflow: auto;
+      padding: 15px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--dim) transparent;
+    }
+
+    .controls::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    .controls::-webkit-scrollbar-thumb {
+      background: var(--dim);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 13px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 46px;
+      min-height: 22px;
+      padding: 0 8px;
+      border: 1px solid rgba(200, 167, 91, 0.38);
+      color: var(--accent-2);
+      background: rgba(200, 167, 91, 0.07);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section {
+      margin: 0 0 17px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(232, 226, 210, 0.08);
+    }
+
+    .section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .section-heading {
+      margin: 0 0 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .value {
+      min-width: 54px;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 10px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      grid-column: 1 / 3;
+      width: 100%;
+      height: 16px;
+      margin: -2px 0 2px;
+      accent-color: var(--accent);
+      background: transparent;
+    }
+
+    select {
+      width: 100%;
+      min-height: 34px;
+      margin-bottom: 10px;
+      padding: 0 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.035);
+      outline: none;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    button {
+      min-height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.035);
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    button:hover,
+    button:focus-visible,
+    select:focus-visible {
+      border-color: rgba(237, 208, 131, 0.72);
+      color: var(--accent-2);
+      outline: none;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.primary {
+      color: #12100a;
+      border-color: rgba(237, 208, 131, 0.68);
+      background: linear-gradient(180deg, #e8c972 0%, #b89245 100%);
+    }
+
+    button.primary:hover,
+    button.primary:focus-visible {
+      color: #070605;
+      background: linear-gradient(180deg, #f2d88f 0%, #c8a75b 100%);
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .formula {
+      margin-top: 4px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.24);
+    }
+
+    .formula-title {
+      margin: 0 0 9px;
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      line-height: 1.55;
+      text-transform: uppercase;
+    }
+
+    .formula pre {
+      margin: 0;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .metrics {
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      bottom: 18px;
+      z-index: 3;
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 1px;
+      border: 1px solid var(--line);
+      background: rgba(4, 4, 4, 0.46);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 9px 11px;
+      border-right: 1px solid rgba(232, 226, 210, 0.08);
+      font-family: var(--mono);
+      text-transform: uppercase;
+    }
+
+    .metric:last-child {
+      border-right: 0;
+    }
+
+    .metric span {
+      display: block;
+      overflow: hidden;
+      color: var(--dim);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .metric strong {
+      display: block;
+      overflow: hidden;
+      margin-top: 4px;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .fallback {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      z-index: 5;
+      display: none;
+      width: min(520px, calc(100vw - 42px));
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      border: 1px solid rgba(181, 108, 88, 0.8);
+      background: var(--panel-strong);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .fallback.is-visible {
+      display: block;
+    }
+
+    .fallback strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 1060px) {
+      #app {
+        min-height: 980px;
+      }
+
+      html,
+      body {
+        overflow: auto;
+      }
+
+      #scene {
+        position: fixed;
+      }
+
+      .topbar {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        padding: 18px;
+      }
+
+      .controls {
+        position: relative;
+        left: auto;
+        top: auto;
+        bottom: auto;
+        width: calc(100% - 36px);
+        max-width: 390px;
+        margin: 24px 18px 100px;
+      }
+
+      .metrics {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      #app {
+        min-height: 1160px;
+      }
+
+      .topbar {
+        display: block;
+      }
+
+      .seed-tag {
+        width: max-content;
+        margin-top: 12px;
+        text-align: left;
+      }
+
+      .preset-grid,
+      .button-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <canvas id="scene" aria-label="Interactive cube variation engine viewport"></canvas>
+
+    <div id="fallback" class="fallback" role="alert">
+      <strong>Three.js did not load</strong>
+      This file needs network access for the Three.js CDN scripts. Reopen it with a connection available.
+    </div>
+
+    <header class="topbar">
+      <div class="brand">
+        <p class="eyebrow">CALVEY FORM / FIELD PROTOTYPE</p>
+        <h1>CUBE VARIATION ENGINE</h1>
+        <p class="subtitle">Primitive + Operation + Field + Falloff + Memory + Constraint</p>
+      </div>
+      <div id="variation-id" class="seed-tag">CVE-00000</div>
+    </header>
+
+    <aside class="panel controls" aria-label="Cube variation engine controls">
+      <div class="panel-title">
+        <span>Variation Controls</span>
+        <span id="run-state" class="status-pill">Run</span>
+      </div>
+
+      <section class="section">
+        <p class="section-heading">Primitive</p>
+        <div class="field">
+          <label for="resolution">Resolution</label>
+          <span id="resolution-value" class="value">9</span>
+          <input id="resolution" type="range" min="4" max="14" step="1" value="9" />
+        </div>
+      </section>
+
+      <section class="section">
+        <p class="section-heading">Operation + Field</p>
+        <select id="mode" aria-label="Operation mode">
+          <option>Pull</option>
+          <option>Push</option>
+          <option>Twist</option>
+          <option>Scale</option>
+          <option>Carve</option>
+          <option>Orbit Memory</option>
+          <option selected>Hybrid</option>
+        </select>
+
+        <div class="field">
+          <label for="strength">Attractor Strength</label>
+          <span id="strength-value" class="value">1.20</span>
+          <input id="strength" type="range" min="0" max="3" step="0.01" value="1.2" />
+        </div>
+
+        <div class="field">
+          <label for="falloffRadius">Falloff Radius</label>
+          <span id="falloffRadius-value" class="value">2.40</span>
+          <input id="falloffRadius" type="range" min="0.5" max="5" step="0.01" value="2.4" />
+        </div>
+
+        <select id="falloffType" aria-label="Falloff type">
+          <option>Linear</option>
+          <option selected>Smoothstep</option>
+          <option>Inverse Square</option>
+          <option>Threshold</option>
+        </select>
+      </section>
+
+      <section class="section">
+        <p class="section-heading">Orbit</p>
+        <div class="field">
+          <label for="orbitRadius">Orbit Radius</label>
+          <span id="orbitRadius-value" class="value">4.00</span>
+          <input id="orbitRadius" type="range" min="2" max="8" step="0.01" value="4" />
+        </div>
+
+        <div class="field">
+          <label for="orbitSpeed">Orbit Speed</label>
+          <span id="orbitSpeed-value" class="value">0.70</span>
+          <input id="orbitSpeed" type="range" min="0" max="3" step="0.01" value="0.7" />
+        </div>
+
+        <div class="field">
+          <label for="orbitInclination">Orbit Inclination</label>
+          <span id="orbitInclination-value" class="value">35deg</span>
+          <input id="orbitInclination" type="range" min="0" max="90" step="1" value="35" />
+        </div>
+
+        <div class="field">
+          <label for="rotationStrength">Rotation Strength</label>
+          <span id="rotationStrength-value" class="value">45deg</span>
+          <input id="rotationStrength" type="range" min="0" max="180" step="1" value="45" />
+        </div>
+      </section>
+
+      <section class="section">
+        <p class="section-heading">Memory + Constraint</p>
+        <div class="field">
+          <label for="memory">Memory</label>
+          <span id="memory-value" class="value">0.55</span>
+          <input id="memory" type="range" min="0" max="1" step="0.01" value="0.55" />
+        </div>
+
+        <select id="constraint" aria-label="Constraint mode">
+          <option>None</option>
+          <option>Preserve Ground</option>
+          <option selected>Preserve Core</option>
+          <option>Preserve Volume Feel</option>
+        </select>
+      </section>
+
+      <section class="section">
+        <p class="section-heading">Presets</p>
+        <div class="preset-grid">
+          <button type="button" data-preset="solar">Solar Pull</button>
+          <button type="button" data-preset="wind">Wind Carve</button>
+          <button type="button" data-preset="fossil">Orbital Fossil</button>
+          <button type="button" data-preset="hybrid">Hybrid Mass</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <p class="section-heading">Actions</p>
+        <div class="button-grid">
+          <button id="pause" class="primary" type="button">Pause</button>
+          <button id="reset" type="button">Reset</button>
+          <button id="randomize" type="button">Randomize</button>
+          <button id="frame" type="button">Frame</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <p class="section-heading">Variation Logic</p>
+        <div class="formula">
+          <p class="formula-title">Variation = Cube + Operation + Rule + Parameter + Constraint</p>
+          <pre id="logic-readout"></pre>
+        </div>
+      </section>
+    </aside>
+
+    <footer class="metrics" aria-label="Live engine metrics">
+      <div class="metric"><span>Voxel Count</span><strong id="metric-count">729</strong></div>
+      <div class="metric"><span>Active Voxels</span><strong id="metric-active">729</strong></div>
+      <div class="metric"><span>Operation</span><strong id="metric-mode">Hybrid</strong></div>
+      <div class="metric"><span>Attractor XYZ</span><strong id="metric-coords">0.00, 0.00, 0.00</strong></div>
+      <div class="metric"><span>Intensity</span><strong id="metric-intensity">0.00</strong></div>
+      <div class="metric"><span>Seed</span><strong id="metric-seed">CVE-00000</strong></div>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const fallback = document.getElementById("fallback");
+      if (!window.THREE || !THREE.OrbitControls) {
+        fallback.classList.add("is-visible");
+        return;
+      }
+
+      const CUBE_SIZE = 3.2;
+      const MIN_SCALE = 0.0001;
+      const BASE_COLOR = new THREE.Color(0xb9bbb0);
+      const HOT_COLOR = new THREE.Color(0xe4c476);
+      const DEEP_COLOR = new THREE.Color(0x4a4c48);
+      const VOID_COLOR = new THREE.Color(0x080706);
+
+      const defaults = Object.freeze({
+        resolution: 9,
+        mode: "Hybrid",
+        strength: 1.2,
+        falloffRadius: 2.4,
+        falloffType: "Smoothstep",
+        orbitRadius: 4,
+        orbitSpeed: 0.7,
+        orbitInclination: 35,
+        rotationStrength: 45,
+        memory: 0.55,
+        constraint: "Preserve Core"
+      });
+
+      const settings = { ...defaults };
+      const state = {
+        paused: false,
+        time: 0,
+        seed: 18427,
+        variation: "CVE-18427",
+        needsRebuild: true,
+        orbitDirty: true,
+        activeCount: 0,
+        intensity: 0
+      };
+
+      const canvas = document.getElementById("scene");
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true
+      });
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 120);
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      const clock = new THREE.Clock();
+
+      const dummy = new THREE.Object3D();
+      const center = new THREE.Vector3(0, 0, 0);
+      const attractor = new THREE.Vector3();
+      const previousAttractor = new THREE.Vector3();
+      const orbitTangent = new THREE.Vector3(1, 0, 0);
+      const temp = new THREE.Vector3();
+      const temp2 = new THREE.Vector3();
+      const color = new THREE.Color();
+      const q = new THREE.Quaternion();
+
+      let voxelMesh;
+      let wireMesh;
+      let voxels = [];
+      let attractorGroup;
+      let attractorLight;
+      let influenceShell;
+      let orbitLine;
+      let boundingCube;
+      let grid;
+
+      const controlsMap = {
+        resolution: document.getElementById("resolution"),
+        strength: document.getElementById("strength"),
+        falloffRadius: document.getElementById("falloffRadius"),
+        orbitRadius: document.getElementById("orbitRadius"),
+        orbitSpeed: document.getElementById("orbitSpeed"),
+        orbitInclination: document.getElementById("orbitInclination"),
+        rotationStrength: document.getElementById("rotationStrength"),
+        memory: document.getElementById("memory"),
+        mode: document.getElementById("mode"),
+        falloffType: document.getElementById("falloffType"),
+        constraint: document.getElementById("constraint")
+      };
+
+      const valueMap = {
+        resolution: document.getElementById("resolution-value"),
+        strength: document.getElementById("strength-value"),
+        falloffRadius: document.getElementById("falloffRadius-value"),
+        orbitRadius: document.getElementById("orbitRadius-value"),
+        orbitSpeed: document.getElementById("orbitSpeed-value"),
+        orbitInclination: document.getElementById("orbitInclination-value"),
+        rotationStrength: document.getElementById("rotationStrength-value"),
+        memory: document.getElementById("memory-value")
+      };
+
+      const metric = {
+        count: document.getElementById("metric-count"),
+        active: document.getElementById("metric-active"),
+        mode: document.getElementById("metric-mode"),
+        coords: document.getElementById("metric-coords"),
+        intensity: document.getElementById("metric-intensity"),
+        seed: document.getElementById("metric-seed"),
+        logic: document.getElementById("logic-readout"),
+        variation: document.getElementById("variation-id"),
+        run: document.getElementById("run-state")
+      };
+
+      init();
+      animate();
+
+      function init() {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight, false);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.06;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        scene.background = new THREE.Color(0x050505);
+        scene.fog = new THREE.FogExp2(0x050505, 0.037);
+
+        camera.position.set(6.7, 5.4, 7.9);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.07;
+        controls.minDistance = 4;
+        controls.maxDistance = 28;
+        controls.target.set(0, 0.2, 0);
+
+        const ambient = new THREE.HemisphereLight(0xf2ead7, 0x0d0d0d, 1.35);
+        scene.add(ambient);
+
+        const key = new THREE.DirectionalLight(0xfff0d0, 2.1);
+        key.position.set(5.4, 9.5, 6.3);
+        key.castShadow = true;
+        key.shadow.mapSize.set(2048, 2048);
+        key.shadow.camera.left = -9;
+        key.shadow.camera.right = 9;
+        key.shadow.camera.top = 9;
+        key.shadow.camera.bottom = -9;
+        scene.add(key);
+
+        const rim = new THREE.DirectionalLight(0xcad6ff, 0.72);
+        rim.position.set(-7, 4.4, -8);
+        scene.add(rim);
+
+        const floor = new THREE.Mesh(
+          new THREE.PlaneGeometry(24, 24),
+          new THREE.MeshStandardMaterial({
+            color: 0x11110f,
+            roughness: 0.9,
+            metalness: 0.05,
+            transparent: true,
+            opacity: 0.62
+          })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -CUBE_SIZE / 2 - 0.015;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        grid = new THREE.GridHelper(24, 48, 0x7e7663, 0x2b2924);
+        grid.position.y = -CUBE_SIZE / 2;
+        grid.material.transparent = true;
+        grid.material.opacity = 0.42;
+        scene.add(grid);
+
+        boundingCube = new THREE.LineSegments(
+          new THREE.EdgesGeometry(new THREE.BoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE)),
+          new THREE.LineBasicMaterial({
+            color: 0xe5ddca,
+            transparent: true,
+            opacity: 0.24
+          })
+        );
+        scene.add(boundingCube);
+
+        buildAttractor();
+        bindUI();
+        rebuildVoxels();
+        updateAllReadouts();
+
+        window.addEventListener("resize", resize);
+      }
+
+      function buildAttractor() {
+        attractorGroup = new THREE.Group();
+
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(0.12, 32, 18),
+          new THREE.MeshStandardMaterial({
+            color: 0xf2d887,
+            emissive: 0xc8a75b,
+            emissiveIntensity: 1.7,
+            metalness: 0.34,
+            roughness: 0.24
+          })
+        );
+
+        const halo = new THREE.Mesh(
+          new THREE.SphereGeometry(0.32, 32, 18),
+          new THREE.MeshBasicMaterial({
+            color: 0xc8a75b,
+            transparent: true,
+            opacity: 0.15,
+            depthWrite: false
+          })
+        );
+
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(0.36, 0.008, 8, 96),
+          new THREE.MeshBasicMaterial({
+            color: 0xf2d887,
+            transparent: true,
+            opacity: 0.86,
+            depthWrite: false
+          })
+        );
+
+        attractorGroup.add(core, halo, ring);
+        attractorGroup.userData.ring = ring;
+        scene.add(attractorGroup);
+
+        attractorLight = new THREE.PointLight(0xc8a75b, 2.4, 9, 2);
+        scene.add(attractorLight);
+
+        influenceShell = new THREE.Mesh(
+          new THREE.SphereGeometry(1, 42, 24),
+          new THREE.MeshBasicMaterial({
+            color: 0xc8a75b,
+            transparent: true,
+            opacity: 0.065,
+            wireframe: true,
+            depthWrite: false
+          })
+        );
+        scene.add(influenceShell);
+      }
+
+      function bindUI() {
+        Object.entries(controlsMap).forEach(([key, input]) => {
+          input.addEventListener("input", () => {
+            readControl(key);
+            if (key === "resolution") {
+              resetMemory();
+              state.needsRebuild = true;
+            }
+            if (key === "orbitRadius" || key === "orbitInclination") {
+              state.orbitDirty = true;
+            }
+            updateAllReadouts();
+          });
+        });
+
+        document.getElementById("pause").addEventListener("click", () => {
+          state.paused = !state.paused;
+          updateRunState();
+        });
+
+        document.getElementById("reset").addEventListener("click", () => {
+          Object.assign(settings, defaults);
+          state.time = 0;
+          state.seed = 18427;
+          state.variation = makeVariationId(state.seed);
+          state.paused = false;
+          state.needsRebuild = true;
+          state.orbitDirty = true;
+          syncControls();
+          updateRunState();
+          updateAllReadouts();
+        });
+
+        document.getElementById("randomize").addEventListener("click", randomize);
+        document.getElementById("frame").addEventListener("click", frameCamera);
+
+        document.querySelectorAll("[data-preset]").forEach((button) => {
+          button.addEventListener("click", () => applyPreset(button.dataset.preset));
+        });
+      }
+
+      function readControl(key) {
+        const input = controlsMap[key];
+        if (input.tagName === "SELECT") {
+          settings[key] = input.value;
+        } else if (key === "resolution") {
+          settings[key] = Math.round(Number(input.value));
+        } else {
+          settings[key] = Number(input.value);
+        }
+      }
+
+      function syncControls() {
+        Object.entries(controlsMap).forEach(([key, input]) => {
+          input.value = settings[key];
+        });
+        updateControlValues();
+      }
+
+      function updateControlValues() {
+        valueMap.resolution.textContent = String(settings.resolution);
+        valueMap.strength.textContent = settings.strength.toFixed(2);
+        valueMap.falloffRadius.textContent = settings.falloffRadius.toFixed(2);
+        valueMap.orbitRadius.textContent = settings.orbitRadius.toFixed(2);
+        valueMap.orbitSpeed.textContent = settings.orbitSpeed.toFixed(2);
+        valueMap.orbitInclination.textContent = `${Math.round(settings.orbitInclination)}deg`;
+        valueMap.rotationStrength.textContent = `${Math.round(settings.rotationStrength)}deg`;
+        valueMap.memory.textContent = settings.memory.toFixed(2);
+      }
+
+      function updateRunState() {
+        const pauseButton = document.getElementById("pause");
+        pauseButton.textContent = state.paused ? "Play" : "Pause";
+        pauseButton.classList.toggle("primary", !state.paused);
+        metric.run.textContent = state.paused ? "Hold" : "Run";
+      }
+
+      function rebuildVoxels() {
+        disposeMesh(voxelMesh);
+        disposeMesh(wireMesh);
+
+        const res = settings.resolution;
+        const count = res * res * res;
+        const cell = CUBE_SIZE / res;
+        const moduleSize = cell * 0.78;
+        const half = CUBE_SIZE / 2;
+
+        const geometry = new THREE.BoxGeometry(moduleSize, moduleSize, moduleSize);
+        const voxelMaterial = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          vertexColors: true,
+          roughness: 0.44,
+          metalness: 0.22,
+          transparent: true,
+          opacity: 0.74
+        });
+
+        const wireMaterial = new THREE.MeshBasicMaterial({
+          color: 0xf0ead8,
+          transparent: true,
+          opacity: 0.18,
+          wireframe: true,
+          depthWrite: false
+        });
+
+        voxelMesh = new THREE.InstancedMesh(geometry, voxelMaterial, count);
+        wireMesh = new THREE.InstancedMesh(geometry.clone(), wireMaterial, count);
+        voxelMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        wireMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        voxelMesh.castShadow = true;
+        voxelMesh.receiveShadow = true;
+        wireMesh.renderOrder = 2;
+
+        scene.add(voxelMesh);
+        scene.add(wireMesh);
+
+        voxels = [];
+        for (let y = 0; y < res; y += 1) {
+          for (let z = 0; z < res; z += 1) {
+            for (let x = 0; x < res; x += 1) {
+              const px = -half + cell * 0.5 + x * cell;
+              const py = -half + cell * 0.5 + y * cell;
+              const pz = -half + cell * 0.5 + z * cell;
+              const base = new THREE.Vector3(px, py, pz);
+              const normalized = base.clone().divideScalar(half);
+              const radial = Math.sqrt(px * px + pz * pz) / half;
+
+              voxels.push({
+                base,
+                normalized,
+                grid: { x, y, z },
+                radial,
+                memoryDisp: new THREE.Vector3(),
+                memoryRot: new THREE.Vector3(),
+                memoryScale: 0,
+                carveMemory: 0,
+                active: true
+              });
+            }
+          }
+        }
+
+        state.needsRebuild = false;
+        state.orbitDirty = true;
+        metric.count.textContent = String(count);
+        frameCamera(false);
+      }
+
+      function disposeMesh(mesh) {
+        if (!mesh) return;
+        scene.remove(mesh);
+        if (mesh.geometry) mesh.geometry.dispose();
+        if (mesh.material) mesh.material.dispose();
+      }
+
+      function resetMemory() {
+        voxels.forEach((voxel) => {
+          voxel.memoryDisp.set(0, 0, 0);
+          voxel.memoryRot.set(0, 0, 0);
+          voxel.memoryScale = 0;
+          voxel.carveMemory = 0;
+          voxel.active = true;
+        });
+      }
+
+      function buildOrbitPath() {
+        if (orbitLine) {
+          scene.remove(orbitLine);
+          orbitLine.geometry.dispose();
+          orbitLine.material.dispose();
+        }
+
+        const points = [];
+        for (let i = 0; i <= 240; i += 1) {
+          const t = (i / 240) * Math.PI * 2;
+          points.push(computeAttractor(t, new THREE.Vector3()));
+        }
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineDashedMaterial({
+          color: 0xc8a75b,
+          transparent: true,
+          opacity: 0.5,
+          dashSize: 0.09,
+          gapSize: 0.07
+        });
+        orbitLine = new THREE.Line(geometry, material);
+        orbitLine.computeLineDistances();
+        scene.add(orbitLine);
+        state.orbitDirty = false;
+      }
+
+      function computeAttractor(t, target) {
+        const r = settings.orbitRadius;
+        const inclination = THREE.MathUtils.degToRad(settings.orbitInclination);
+        target.set(Math.cos(t) * r, 0, Math.sin(t) * r);
+        target.applyAxisAngle(new THREE.Vector3(1, 0, 0), inclination);
+        return target;
+      }
+
+      function updateAttractor(delta) {
+        previousAttractor.copy(attractor);
+        computeAttractor(state.time, attractor);
+
+        if (delta > 0) {
+          orbitTangent.subVectors(attractor, previousAttractor);
+          if (orbitTangent.lengthSq() < 0.00001) {
+            orbitTangent.set(-Math.sin(state.time), 0, Math.cos(state.time));
+          }
+          orbitTangent.normalize();
+        }
+
+        attractorGroup.position.copy(attractor);
+        attractorGroup.userData.ring.lookAt(camera.position);
+        attractorGroup.userData.ring.rotateZ(state.time * 1.4);
+        attractorLight.position.copy(attractor);
+
+        influenceShell.position.copy(attractor);
+        influenceShell.scale.setScalar(settings.falloffRadius);
+      }
+
+      function deformVoxels(delta) {
+        const radius = Math.max(settings.falloffRadius, 0.001);
+        const rotationRadians = THREE.MathUtils.degToRad(settings.rotationStrength);
+        const memory = settings.mode === "Orbit Memory"
+          ? Math.max(settings.memory, 0.78)
+          : settings.memory;
+        const instant = 1 - memory;
+        const maxDisp = 1.35 + settings.strength * 0.7;
+        let active = 0;
+        let intensity = 0;
+
+        for (let i = 0; i < voxels.length; i += 1) {
+          const voxel = voxels[i];
+          const d = voxel.base.distanceTo(attractor);
+          const raw = Math.max(0, 1 - d / radius);
+          const influence = applyFalloff(raw, d, radius);
+          const constraint = constraintWeight(voxel, influence);
+          const usable = influence * constraint;
+          const target = computeTarget(voxel, usable, rotationRadians);
+
+          updateMemory(voxel, target, usable, memory, delta, maxDisp);
+
+          const disp = temp.copy(target.disp).multiplyScalar(instant).add(voxel.memoryDisp);
+          const rot = temp2.copy(target.rot).multiplyScalar(instant).add(voxel.memoryRot);
+          let scale = target.scale * instant + (1 + voxel.memoryScale) * memory;
+          scale = THREE.MathUtils.clamp(scale, 0.06, 2.45);
+
+          if (settings.constraint === "Preserve Volume Feel") {
+            const counter = 1 - (1 - usable) * settings.strength * 0.035;
+            scale *= THREE.MathUtils.clamp(counter, 0.82, 1);
+            if (disp.length() > maxDisp * 0.72) {
+              disp.setLength(maxDisp * 0.72);
+            }
+          }
+
+          let carved = target.carve || voxel.carveMemory > 0.64;
+          if (settings.constraint === "Preserve Core" && voxel.radial < 0.34) {
+            carved = false;
+          }
+          if (settings.constraint === "Preserve Ground" && voxel.grid.y === 0) {
+            carved = false;
+            disp.y *= 0.08;
+          }
+
+          voxel.active = !carved;
+          if (voxel.active) active += 1;
+
+          dummy.position.copy(voxel.base).add(disp);
+          dummy.rotation.set(rot.x, rot.y, rot.z);
+          if (voxel.active) {
+            const yStretch = settings.mode === "Scale" || settings.mode === "Hybrid"
+              ? 1 + usable * settings.strength * 0.12
+              : 1;
+            dummy.scale.set(scale, scale * yStretch, scale);
+          } else {
+            dummy.scale.setScalar(MIN_SCALE);
+          }
+          dummy.updateMatrix();
+
+          voxelMesh.setMatrixAt(i, dummy.matrix);
+          wireMesh.setMatrixAt(i, dummy.matrix);
+
+          color.copy(BASE_COLOR).lerp(HOT_COLOR, Math.pow(usable, 0.62));
+          color.lerp(DEEP_COLOR, Math.max(0, voxel.radial - 0.9) * 0.24);
+          if (!voxel.active) color.copy(VOID_COLOR);
+          voxelMesh.setColorAt(i, color);
+
+          intensity += disp.length() + Math.abs(rot.x) * 0.08 + Math.abs(rot.y) * 0.08 + Math.abs(scale - 1);
+        }
+
+        voxelMesh.instanceMatrix.needsUpdate = true;
+        wireMesh.instanceMatrix.needsUpdate = true;
+        if (voxelMesh.instanceColor) voxelMesh.instanceColor.needsUpdate = true;
+
+        state.activeCount = active;
+        state.intensity = intensity / Math.max(voxels.length, 1);
+      }
+
+      function applyFalloff(raw, distance, radius) {
+        if (raw <= 0) return 0;
+        switch (settings.falloffType) {
+          case "Linear":
+            return raw;
+          case "Smoothstep":
+            return raw * raw * (3 - 2 * raw);
+          case "Inverse Square": {
+            const u = distance / radius;
+            const inv = 1 / (1 + 7.5 * u * u);
+            const edge = 1 / 8.5;
+            return THREE.MathUtils.clamp((inv - edge) / (1 - edge), 0, 1);
+          }
+          case "Threshold":
+            return raw > 0 ? 1 : 0;
+          default:
+            return raw;
+        }
+      }
+
+      function constraintWeight(voxel, influence) {
+        if (settings.constraint === "None") return 1;
+
+        if (settings.constraint === "Preserve Ground") {
+          const layer = voxel.grid.y / Math.max(settings.resolution - 1, 1);
+          return THREE.MathUtils.clamp(0.14 + layer * 0.92, 0.14, 1);
+        }
+
+        if (settings.constraint === "Preserve Core") {
+          const t = THREE.MathUtils.smoothstep(voxel.radial, 0.26, 0.9);
+          return 0.18 + t * 0.82;
+        }
+
+        if (settings.constraint === "Preserve Volume Feel") {
+          return THREE.MathUtils.clamp(1 - influence * settings.strength * 0.08, 0.62, 1);
+        }
+
+        return 1;
+      }
+
+      function computeTarget(voxel, influence, rotationRadians) {
+        const mode = settings.mode;
+        const target = {
+          disp: new THREE.Vector3(),
+          rot: new THREE.Vector3(),
+          scale: 1,
+          carve: false
+        };
+
+        if (influence <= 0.0001 || settings.strength <= 0) {
+          return target;
+        }
+
+        const towardAttractor = temp.subVectors(attractor, voxel.base).normalize();
+        const awayAttractor = temp2.subVectors(voxel.base, attractor).normalize();
+        const radialOut = voxel.base.clone().sub(center);
+        if (radialOut.lengthSq() < 0.0001) radialOut.set(0, 1, 0);
+        radialOut.normalize();
+
+        const strength = settings.strength;
+        const carveGate = influence > THREE.MathUtils.clamp(0.7 - strength * 0.12, 0.38, 0.72);
+
+        if (mode === "Pull") {
+          target.disp.copy(towardAttractor).lerp(radialOut, 0.22).normalize().multiplyScalar(influence * strength * 0.78);
+        }
+
+        if (mode === "Push") {
+          target.disp.copy(awayAttractor).lerp(radialOut.multiplyScalar(-1), 0.28).normalize().multiplyScalar(influence * strength * 0.62);
+          target.scale = 1 - influence * strength * 0.075;
+        }
+
+        if (mode === "Twist") {
+          const twist = influence * rotationRadians * (0.35 + strength * 0.25);
+          target.rot.set(
+            Math.sin(state.time + voxel.normalized.z) * twist * 0.22,
+            twist * (voxel.normalized.y * 0.9 + 0.45),
+            Math.cos(state.time * 0.7 + voxel.normalized.x) * twist * 0.18
+          );
+          target.disp.copy(voxel.base).applyAxisAngle(new THREE.Vector3(0, 1, 0), twist * 0.08).sub(voxel.base);
+        }
+
+        if (mode === "Scale") {
+          target.scale = 1 + influence * strength * 0.34 * (voxel.normalized.y > 0 ? 1 : 0.62);
+          target.rot.y = influence * rotationRadians * 0.12;
+        }
+
+        if (mode === "Carve") {
+          target.carve = carveGate;
+          target.disp.copy(awayAttractor).multiplyScalar(influence * strength * 0.12);
+          target.scale = 1 - influence * 0.22;
+        }
+
+        if (mode === "Orbit Memory") {
+          target.disp.copy(orbitTangent).multiplyScalar(influence * strength * 0.34);
+          target.disp.add(radialOut.multiplyScalar(influence * strength * 0.24));
+          target.rot.set(
+            influence * rotationRadians * 0.08,
+            influence * rotationRadians * 0.42,
+            influence * rotationRadians * 0.16
+          );
+          target.scale = 1 + influence * strength * 0.11;
+        }
+
+        if (mode === "Hybrid") {
+          target.disp.copy(towardAttractor).lerp(radialOut, 0.38).normalize().multiplyScalar(influence * strength * 0.66);
+          target.disp.add(orbitTangent.clone().multiplyScalar(influence * strength * 0.18));
+          target.rot.set(
+            Math.sin(state.time * 0.75 + voxel.normalized.x * Math.PI) * influence * rotationRadians * 0.16,
+            influence * rotationRadians * (0.55 + voxel.normalized.y * 0.22),
+            Math.cos(state.time * 0.6 + voxel.normalized.z * Math.PI) * influence * rotationRadians * 0.14
+          );
+          target.scale = 1 + influence * strength * 0.18;
+          target.carve = carveGate && voxel.radial > 0.42 && (voxel.grid.x + voxel.grid.y + voxel.grid.z) % 3 !== 0;
+        }
+
+        target.scale = THREE.MathUtils.clamp(target.scale, 0.05, 2.35);
+        return target;
+      }
+
+      function updateMemory(voxel, target, influence, memory, delta, maxDisp) {
+        const safeDelta = Math.min(delta, 0.05);
+        const gain = memory * safeDelta * (1.25 + settings.orbitSpeed * 0.42) * (0.28 + influence);
+        const decay = 1 - (1 - memory) * safeDelta * 3.4;
+
+        if (memory > 0.001) {
+          voxel.memoryDisp.addScaledVector(target.disp, gain);
+          voxel.memoryRot.x += target.rot.x * gain;
+          voxel.memoryRot.y += target.rot.y * gain;
+          voxel.memoryRot.z += target.rot.z * gain;
+          voxel.memoryScale += (target.scale - 1) * gain;
+          if (target.carve) voxel.carveMemory += gain * 2.8;
+        }
+
+        voxel.memoryDisp.multiplyScalar(THREE.MathUtils.clamp(decay, 0, 1));
+        voxel.memoryRot.multiplyScalar(THREE.MathUtils.clamp(decay, 0, 1));
+        voxel.memoryScale *= THREE.MathUtils.clamp(decay, 0, 1);
+        voxel.carveMemory *= THREE.MathUtils.clamp(1 - (1 - memory) * safeDelta * 2.2, 0, 1);
+
+        if (voxel.memoryDisp.length() > maxDisp) {
+          voxel.memoryDisp.setLength(maxDisp);
+        }
+        voxel.memoryRot.x = THREE.MathUtils.clamp(voxel.memoryRot.x, -Math.PI, Math.PI);
+        voxel.memoryRot.y = THREE.MathUtils.clamp(voxel.memoryRot.y, -Math.PI, Math.PI);
+        voxel.memoryRot.z = THREE.MathUtils.clamp(voxel.memoryRot.z, -Math.PI, Math.PI);
+        voxel.memoryScale = THREE.MathUtils.clamp(voxel.memoryScale, -0.72, 1.2);
+        voxel.carveMemory = THREE.MathUtils.clamp(voxel.carveMemory, 0, 1);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = Math.min(clock.getDelta(), 0.05);
+
+        if (!state.paused) {
+          state.time += delta * settings.orbitSpeed;
+        }
+        if (state.needsRebuild) {
+          rebuildVoxels();
+        }
+        if (state.orbitDirty) {
+          buildOrbitPath();
+        }
+
+        updateAttractor(delta);
+        deformVoxels(delta);
+        controls.update();
+        updateMetrics();
+        renderer.render(scene, camera);
+      }
+
+      function updateMetrics() {
+        metric.active.textContent = String(state.activeCount);
+        metric.mode.textContent = settings.mode;
+        metric.coords.textContent = `${attractor.x.toFixed(2)}, ${attractor.y.toFixed(2)}, ${attractor.z.toFixed(2)}`;
+        metric.intensity.textContent = state.intensity.toFixed(3);
+        metric.seed.textContent = state.variation;
+        metric.variation.textContent = state.variation;
+      }
+
+      function updateAllReadouts() {
+        updateControlValues();
+        updateMetrics();
+        metric.logic.textContent = [
+          "Cube",
+          `→ subdivide ${settings.resolution} × ${settings.resolution} × ${settings.resolution}`,
+          "→ apply Orbiting Attractor",
+          `→ mode: ${settings.mode}`,
+          `→ falloff: ${settings.falloffType}`,
+          `→ memory: ${settings.memory.toFixed(2)}`,
+          `→ constraint: ${settings.constraint}`
+        ].join("\n");
+      }
+
+      function randomize() {
+        const random = mulberry32(Date.now() % 1000000);
+        const modes = ["Pull", "Push", "Twist", "Scale", "Carve", "Orbit Memory", "Hybrid"];
+        const falloffs = ["Linear", "Smoothstep", "Inverse Square", "Threshold"];
+        const constraints = ["None", "Preserve Ground", "Preserve Core", "Preserve Volume Feel"];
+
+        state.seed = Math.floor(random() * 90000) + 10000;
+        state.variation = makeVariationId(state.seed);
+        settings.resolution = Math.round(7 + random() * 5);
+        settings.mode = modes[Math.floor(random() * modes.length)];
+        settings.strength = Number((0.75 + random() * 1.75).toFixed(2));
+        settings.falloffRadius = Number((1.5 + random() * 2.75).toFixed(2));
+        settings.falloffType = falloffs[Math.floor(random() * falloffs.length)];
+        settings.orbitRadius = Number((3.2 + random() * 3.8).toFixed(2));
+        settings.orbitSpeed = Number((0.25 + random() * 1.65).toFixed(2));
+        settings.orbitInclination = Math.round(12 + random() * 70);
+        settings.rotationStrength = Math.round(24 + random() * 130);
+        settings.memory = Number((0.2 + random() * 0.68).toFixed(2));
+        settings.constraint = constraints[Math.floor(random() * constraints.length)];
+
+        state.needsRebuild = true;
+        state.orbitDirty = true;
+        resetMemory();
+        syncControls();
+        updateAllReadouts();
+      }
+
+      function applyPreset(name) {
+        const presets = {
+          solar: {
+            mode: "Pull",
+            falloffType: "Smoothstep",
+            strength: 1.35,
+            memory: 0.22,
+            constraint: "Preserve Ground",
+            falloffRadius: 2.6,
+            orbitInclination: 28,
+            orbitSpeed: 0.82,
+            rotationStrength: 36
+          },
+          wind: {
+            mode: "Carve",
+            falloffType: "Linear",
+            strength: 1.65,
+            memory: 0.12,
+            constraint: "Preserve Core",
+            falloffRadius: 2.15,
+            orbitInclination: 54,
+            orbitSpeed: 1.05,
+            rotationStrength: 18
+          },
+          fossil: {
+            mode: "Orbit Memory",
+            falloffType: "Smoothstep",
+            strength: 1.45,
+            memory: 0.88,
+            constraint: "Preserve Volume Feel",
+            falloffRadius: 2.8,
+            orbitInclination: 67,
+            orbitSpeed: 0.58,
+            rotationStrength: 88
+          },
+          hybrid: {
+            mode: "Hybrid",
+            falloffType: "Smoothstep",
+            strength: 1.55,
+            memory: 0.6,
+            constraint: "Preserve Core",
+            falloffRadius: 2.55,
+            orbitInclination: 35,
+            orbitSpeed: 0.76,
+            rotationStrength: 58
+          }
+        };
+
+        Object.assign(settings, presets[name]);
+        state.seed = hashPreset(name);
+        state.variation = makeVariationId(state.seed);
+        state.orbitDirty = true;
+        resetMemory();
+        syncControls();
+        updateAllReadouts();
+      }
+
+      function frameCamera(animated = true) {
+        const target = new THREE.Vector3(0, 0, 0);
+        const distance = Math.max(7.5, settings.orbitRadius + settings.falloffRadius + 3.5);
+        const position = new THREE.Vector3(distance * 0.75, distance * 0.56, distance * 0.9);
+        if (animated) {
+          camera.position.lerp(position, 0.72);
+        } else {
+          camera.position.copy(position);
+        }
+        controls.target.copy(target);
+        controls.update();
+      }
+
+      function resize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height, false);
+      }
+
+      function makeVariationId(seed) {
+        return `CVE-${String(seed).padStart(5, "0")}`;
+      }
+
+      function hashPreset(name) {
+        let hash = 0;
+        for (let i = 0; i < name.length; i += 1) {
+          hash = (hash * 31 + name.charCodeAt(i)) % 90000;
+        }
+        return hash + 10000;
+      }
+
+      function mulberry32(initialSeed) {
+        let a = initialSeed >>> 0;
+        return function () {
+          a += 0x6D2B79F5;
+          let t = a;
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+    })();
+  </script>
+</body>
+</html>

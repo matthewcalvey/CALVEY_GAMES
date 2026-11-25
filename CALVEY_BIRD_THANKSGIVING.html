@@ -1,0 +1,1272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5edd9">
+<title>TURKEY FLOP · Calvey Bird Thanksgiving Edition</title>
+<style>
+:root { color-scheme:light; --paper:#f7efdc; --ink:#38291e; --ink-soft:#685642; --rust:#a63e24; --line:#b5a68a; --serif:Georgia,"Iowan Old Style","Times New Roman",serif; --mono:"IBM Plex Mono","Courier New",monospace; }
+* { box-sizing:border-box }
+html,body { margin:0; min-height:100%; }
+body { background:#f4eddb; color:var(--ink); font-family:var(--serif); }
+button,input { font:inherit; }
+button { color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+button:focus-visible, input:focus-visible { outline:3px solid #116456; outline-offset:4px; }
+[hidden] { display:none!important; }
+.icon { width:1.2em; height:1.2em; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; flex:none; }
+.defs { position:absolute; width:0; height:0; overflow:hidden; }
+.shell { width:min(100%,1840px); min-height:100vh; height:100svh; margin:auto; display:flex; flex-direction:column; padding:0 clamp(14px,3.45vw,66px); }
+.mast,.foot { display:flex; align-items:center; justify-content:space-between; flex:none; gap:14px; }
+.mast { height:clamp(64px,9.4svh,88px); }
+.wordmark { display:flex; align-items:center; gap:10px; font:bold clamp(21px,2.1vw,34px)/1 var(--serif); letter-spacing:-.065em; white-space:nowrap; }
+.mark { width:clamp(34px,3vw,45px); height:auto; }
+.nav,.foot div,.control-key,.section-label,.score-label,.tabs { display:flex; align-items:center; }
+.nav { gap:8px; }
+.utility { white-space:nowrap; font:700 12px var(--mono); display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid #a99a7e; min-height:38px; border-radius:24px; padding:0 15px; background:transparent; }
+.utility:hover,.subtle:hover { background:#ebe0c7; }
+.utility .icon { width:16px; height:16px; }
+.stage { flex:1; position:relative; isolation:isolate; min-height:0; border:2px solid var(--ink); background:#fff0cf; overflow:hidden; container-type:size; touch-action:manipulation; }
+.stage::after { content:""; position:absolute; inset:5px; border:1px solid rgba(69,48,27,.56); pointer-events:none; z-index:4; }
+#scene { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+#grain { position:absolute; inset:0; opacity:.07; mix-blend-mode:multiply; pointer-events:none; z-index:3; }
+.corner { position:absolute; z-index:4; color:#795537; font:17px/1 Georgia,serif; pointer-events:none; }
+.c1 { left:12px; top:10px; } .c2 { right:12px; top:10px; }
+.c3 { left:12px; bottom:10px; color:var(--paper); } .c4 { right:12px; bottom:10px; color:var(--paper); }
+.intro { position:absolute; inset:0; pointer-events:none; }
+.intro-copy { position:absolute; left:7%; top:clamp(32px,9.3cqh,100px); }
+.section-label { gap:10px; color:#773f27; font:700 clamp(12px,1cqw,16px)/1.3 var(--mono); letter-spacing:.135em; text-transform:uppercase; }
+.section-label::before { content:""; display:inline-block; width:27px; height:2px; background:currentColor; }
+h1 { margin:.13em 0 .13em -.055em; font:900 clamp(55px,min(9.6cqw,16.2cqh),184px)/.83 var(--serif); letter-spacing:-.088em; }
+h1 span { display:block; }
+h1 em { display:inline-block; color:#a04125; font-weight:700; position:relative; line-height:.91; letter-spacing:-.085em; padding-right:.1em; }
+h1 em::after { content:""; position:absolute; left:104%; top:67%; width:.53em; height:.065em; background:var(--rust); border-radius:90% 15% 100% 15%; transform:rotate(-8deg); box-shadow:-.09em .11em 0 -.012em #a04125; }
+.intro-desc { margin:0; font:normal clamp(16px,min(1.53cqw,2.85cqh),25px)/1.45 var(--serif); color:#533825; max-width:23em; }
+.launch { margin-top:clamp(14px,2.75cqh,28px); }
+.primary { display:inline-flex; justify-content:center; align-items:center; gap:12px; min-height:48px; padding:11px 25px; border:2px solid #452c1f; border-radius:5px; background:var(--rust); color:#fff5df; box-shadow:3px 4px 0 #4c3121; font:bold 19px/1.1 var(--serif); letter-spacing:-.02em; pointer-events:auto; }
+.primary:hover { background:#8f321c; }
+.primary:active { transform:translate(2px,2px); box-shadow:1px 2px 0 #4c3121; }
+.primary .icon { width:14px; height:14px; stroke-width:2.1; }
+.foot { min-height:clamp(60px,8.4svh,86px); font:12px/1.4 var(--mono); }
+.foot div { gap:9px; }
+.footer-title { color:#695843; letter-spacing:.12em; font-weight:700; font-size:11px; }
+.foot .divider { margin:0 5px; width:1px; height:17px; background:var(--line); }
+kbd { font:600 12px/1 var(--mono); display:inline-block; padding:4px 8px; border:1px solid #a4977e; border-radius:4px; box-shadow:0 2px 0 #cebea0; background:#faf3e2; }
+.foot .icon { width:16px; height:16px; }
+.foot .best-label { color:var(--ink-soft); }
+#best { font-weight:700; }
+.hud { position:absolute; left:50%; top:15px; transform:translateX(-50%); display:flex; gap:8px; align-items:baseline; padding:6px 17px 7px; background:#fff1d7; border:1.5px solid var(--ink); box-shadow:2px 2px #533b29; border-radius:22px; }
+.hud,#readyHint { pointer-events:none; }
+#readyHint { position:absolute; left:50%; top:26%; transform:translateX(-50%); padding:8px 14px; background:#fff0d0; border:1px solid #846346; font:600 13px var(--mono); white-space:nowrap; }
+.stage:focus { outline:none; }
+.score-label { text-transform:uppercase; font:700 11px var(--mono); letter-spacing:.13em; }
+#score { font:bold 23px/1 var(--serif); }
+#celebrate { position:absolute; top:72px; left:50%; transform:translateX(-50%); font:bold italic clamp(18px,3vw,33px)/1 var(--serif); color:#81391e; background:var(--paper); padding:5px 12px; border-radius:3px; white-space:nowrap; pointer-events:none; }
+.overlay { position:absolute; inset:0; display:grid; place-items:center; padding:18px; background:#3c281f50; z-index:5; overflow:auto; }
+.card { position:relative; margin:auto; width:min(430px,100%); background:#fbefd5; padding:clamp(22px,4vw,42px); text-align:center; border:2px solid var(--ink); outline:1px solid #a98b65; outline-offset:-7px; box-shadow:5px 6px 0 #523a2b; }
+.card h2 { font:bold clamp(32px,4.2vw,52px)/1 var(--serif); letter-spacing:-.075em; margin:11px 0 13px; }
+.card p { margin:10px auto 20px; font-size:17px; line-height:1.4; }
+.card .section-label { justify-content:center; font-size:11px; }
+.card .section-label::before { display:none; }
+.stats { display:flex; justify-content:center; margin:22px 0; border-block:1px solid #b59e79; padding:11px 0; }
+.stats div { flex:1; }
+.stats div+div { border-left:1px solid #b59e79; }
+.stats strong,.stats span { display:block; }
+.stats strong { font:bold 27px/1.2 var(--serif); }
+.stats span { font:11px var(--mono); text-transform:uppercase; letter-spacing:.08em; }
+.subtle { background:transparent; border:0; border-radius:3px; padding:8px; font:700 12px var(--mono); text-decoration:underline; text-underline-offset:3px; }
+.actions { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; }
+dialog { position:fixed; width:min(460px,calc(100% - 32px)); max-height:90svh; margin:auto; padding:30px 24px 26px; background:#fbefd5; color:var(--ink); border:2px solid var(--ink); box-shadow:5px 6px 0 #4c3121; text-align:center; }
+dialog::backdrop { background:#38291e75; }
+dialog h2 { margin:5px 30px 19px; font:bold 35px/1 var(--serif); letter-spacing:-.065em; }
+.close { position:absolute; right:10px; top:8px; border:0; background:transparent; font:26px/1 var(--serif); width:34px; height:34px; }
+.tabs { justify-content:center; gap:4px; margin:0 auto 15px; }
+.tabs button { background:none; padding:7px 10px; border:1px solid transparent; font:700 12px var(--mono); }
+.tabs button[aria-pressed="true"] { border-color:var(--ink); background:#eddcbb; }
+#list { padding:0; margin:0; list-style:none; max-height:36svh; overflow:auto; }
+#list li { display:flex; justify-content:space-between; padding:10px 6px; border-top:1px solid #ceba95; font:14px var(--mono); }
+#list .rank { color:#866748; margin-right:12px; }
+#boardMsg,#postStatus { font:14px/1.45 var(--serif); }
+#boardMsg:empty,#postStatus:empty { display:none; }
+#postForm { border-top:1px solid #b59e79; margin-top:16px; padding-top:16px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:6px; }
+#postForm label { flex-basis:100%; font-size:15px; margin-bottom:4px; }
+#postForm input { width:10em; padding:8px; font:14px var(--mono); background:#fff7e6; border:1px solid #8e795e; }
+#postForm .utility { background:var(--ink); color:var(--paper); border-radius:4px; }
+@container (min-aspect-ratio: 2.65) {
+  .intro-copy { top:9cqh; }
+  h1 { font-size:clamp(45px,19cqh,114px); }
+  h1 span { display:inline; } h1 em::after { display:none; }
+}
+@media(max-width:680px) { .utility { padding:0 11px; } .foot .footer-title,.foot .divider { display:none; } .foot div { gap:6px; } }
+@container (max-aspect-ratio: 0.9) {
+  .intro-copy { top:8%; left:5%; right:5%; text-align:center; }
+  .section-label { justify-content:center; font-size:clamp(11px,2.8cqw,14px); letter-spacing:.09em; gap:6px; }
+  .section-label::before { display:none; }
+  h1 { white-space:nowrap; font-size:min(12cqw,10cqh); margin:.13em 0 .15em; line-height:1; letter-spacing:-.08em; }
+  h1 span { display:inline; } h1 em::after { display:none; }
+  .intro-desc { font-size:clamp(15px,4cqw,21px); line-height:1.25; margin:auto; max-width:19em; }
+  .launch { position:absolute; bottom:16%; left:50%; transform:translateX(-50%); margin:0; white-space:nowrap; }
+}
+@media(max-width:460px) {
+  #soundBtn { width:36px; padding:0; }
+  #soundText { position:absolute; width:1px; height:1px; clip-path:inset(50%); overflow:hidden; white-space:nowrap; }
+  .shell { padding:0 10px; } .mast { height:58px; } .foot { min-height:50px; } .utility { min-height:35px; font-size:11px; gap:5px; } .wordmark { gap:6px; font-size:20px; } .mark { width:30px; } .nav { gap:5px; } .foot { font-size:11px; } }
+@media(max-width:355px) { .utility { padding:0 9px; } .utility .opt { display:none; } .foot .best-label { display:none; } }
+@media(max-height:520px) and (orientation:landscape) { .shell { padding:0 12px; } .mast { height:43px; } .wordmark { font-size:20px; } .mark { width:26px; } .utility { min-height:30px; } .foot { min-height:33px; } .primary { min-height:36px; padding:7px 16px; font-size:16px; } .launch { margin-top:9px; } .card { padding:15px 26px; } .card h2 { margin:6px 0; } .stats { margin:9px 0; padding:5px; } .card p { margin:6px 0 10px; } }
+
+:root { --serif:"Arial Rounded MT Bold",ui-rounded,"Trebuchet MS",sans-serif; --ink:#483044; --rust:#b93647; }
+body { background:#fff5d6; }
+.wordmark { letter-spacing:-.055em; }
+.stage { border:3px solid #533647; border-radius:24px; box-shadow:0 4px #e6bb80; }
+.stage::after,.corner,h1 em::after { display:none; }
+.utility,.hud,#readyHint { background:#fffaf0; border:2px solid #705044; border-radius:22px; }
+.section-label { color:#603b4a; }
+.section-label::before { width:18px; height:6px; border-radius:8px; background:#f77a45; }
+h1 { font-family:"Arial Rounded MT Bold","Arial Black",ui-rounded,sans-serif; font-weight:1000; line-height:.94; letter-spacing:-.045em; color:#fff6d3; margin:.14em 0 .17em -.03em; }
+h1 span,h1 em { width:max-content; transform:rotate(-3deg); -webkit-text-stroke:.055em #503046; paint-order:stroke fill; text-shadow:.018em .06em #503046,.034em .09em #503046; }
+h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad3e; transform:rotate(2deg); }
+.primary { border-radius:22px; padding-inline:24px; background:#b93647; border-color:#5a2b3d; box-shadow:0 4px #5a2b3d; }
+.primary:hover { background:#a62a40; }
+.intro-desc { color:#493447; }
+.card,dialog { background:#fff2ca; border-radius:22px; outline:0; }
+@container (max-aspect-ratio:.9) { h1 { letter-spacing:-.065em; } h1 em { padding:0; } }
+</style>
+</head>
+<body>
+<svg class="defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="cup" viewBox="0 0 24 24"><path d="M7 4h10v5c0 4-2.2 6-5 6s-5-2-5-6zM7 6H3v2c0 3 2 5 5 5m9-7h4v2c0 3-2 5-5 5m-4 2v4m-4 1h8"/></symbol>
+  <symbol id="sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM16 8c2 2 2 6 0 8m3-11c4 4 4 10 0 14"/></symbol>
+  <symbol id="mute" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM16 9l5 6m0-6-5 6"/></symbol>
+  <symbol id="play" viewBox="0 0 16 16"><path d="M3 2l10 6-10 6z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="replayIcon" viewBox="0 0 24 24"><path d="M4 5v6h6m-5.5-.5a8 8 0 1 1 .7 6"/></symbol>
+</svg>
+<div class="shell">
+<header class="mast">
+  <div class="wordmark">
+    <svg class="mark" viewBox="0 0 47 39" aria-hidden="true"><g stroke="#392b20" stroke-width="1.9" stroke-linejoin="round"><path d="M8 22C4 19 2 14 2 11l11 5C9 11 9 6 10 3l12 10c6-5 11-4 14 0l3 1 5 5-7 1c-2 7-10 13-20 12l-8 3 4-7-9-2z" fill="#b55432"/><path d="M8 18c6 1 10 2 17 1-3 5-11 9-17 7l5-3z" fill="#efc278"/><path d="m38 14 6 5-7 1" fill="#e9b559"/></g><circle cx="31.8" cy="15.3" r="1.7" fill="#32291f"/></svg>
+    <span>Calvey Games</span>
+  </div>
+  <nav class="nav" aria-label="Game options">
+    <button id="boardBtn" class="utility" type="button"><svg class="icon" aria-hidden="true"><use href="#cup"/></svg>High scores</button>
+    <button id="soundBtn" class="utility" type="button" aria-pressed="true"><svg class="icon" aria-hidden="true"><use id="soundIcon" href="#sound"/></svg><span id="soundText">Sound on</span></button>
+  </nav>
+</header>
+<main class="stage" id="stage" tabindex="-1" aria-label="Calvey Bird Thanksgiving arcade game">
+  <canvas id="scene" aria-label="A flying turkey over harvest fields. Tap or use Space to flap."></canvas>
+  <i class="corner c1" aria-hidden="true">✦</i><i class="corner c2" aria-hidden="true">✦</i><i class="corner c3" aria-hidden="true">✦</i><i class="corner c4" aria-hidden="true">✦</i>
+  <section class="intro" id="intro" aria-labelledby="title">
+    <div class="intro-copy">
+      <div class="section-label">Calvey Bird <span aria-hidden="true">/</span> Thanksgiving Edition</div>
+      <h1 id="title"><span>TURKEY</span> <em>FLOP</em></h1>
+      <p class="intro-desc">Flap those tiny wings through the harvest gates.</p>
+      <div class="launch" id="desktopLaunch"><button class="primary" type="button" id="startBtn"><svg class="icon" aria-hidden="true"><use href="#play"/></svg>Start flight</button></div>
+    </div>
+  </section>
+  <div class="hud" id="hud" hidden><span id="score">0</span><span class="score-label">Gates</span></div>
+  <div id="readyHint" hidden>Tap or press <kbd>Space</kbd> to flap</div>
+  <div id="celebrate" aria-live="polite" hidden>Harvest time!</div>
+  <section class="overlay" id="finish" aria-labelledby="finishedTitle" hidden>
+    <div class="card">
+      <div class="section-label">Calvey Bird · Thanksgiving Edition</div><h2 id="finishedTitle">Flop landing!</h2>
+      <p id="remark"></p>
+      <div class="stats"><div><strong id="finalGates">0</strong><span>Gates</span></div><div><strong id="finalMeters">0 m</strong><span>Distance</span></div><div><strong id="finalBest">0</strong><span>Best</span></div></div>
+      <div class="actions"><button type="button" class="primary" id="replay"><svg class="icon" aria-hidden="true"><use href="#replayIcon"/></svg>Fly again</button><button type="button" class="subtle" id="menuBtn">Title screen</button></div>
+    </div>
+  </section>
+</main>
+<footer class="foot">
+  <div><span class="footer-title">Flight controls</span><span class="divider" aria-hidden="true"></span><kbd>Space</kbd><span>or tap to flap</span></div>
+  <div><svg class="icon" aria-hidden="true"><use href="#cup"/></svg><span class="best-label">Personal best</span><span class="divider" aria-hidden="true"></span><span id="best">0 gates</span></div>
+</footer>
+</div>
+<dialog id="board" aria-labelledby="boardTitle">
+  <button class="close" id="closeBoard" aria-label="Close high scores" type="button">×</button>
+  <h2 id="boardTitle">High scores</h2>
+  <div class="tabs"><button id="localTab" type="button" aria-pressed="true">This device</button><button id="globalTab" type="button" aria-pressed="false">Shared arcade</button></div>
+  <ol id="list"></ol><p id="boardMsg" aria-live="polite"></p>
+  <form id="postForm" hidden><label for="initials">Post this flight to the shared Calvey Bird board</label><input id="initials" placeholder="Your name" maxlength="10" required autocomplete="nickname"><button type="submit" class="utility">Post score</button></form>
+  <p id="postStatus" aria-live="polite"></p>
+</dialog>
+<script>
+'use strict';
+// Screen-printed harvest valley. Only the small visible strips are cached for parallax.
+const { drawValley, drawGate } = (() => {
+    const tau = Math.PI * 2;
+    const ink = '#513e32';
+    let scene;
+    function rng(seed) {
+        return () => {
+            seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+            return seed / 4294967296;
+        };
+    }
+    function polygon(c, points, fill, stroke, weight = 1) {
+        c.beginPath();
+        c.moveTo(points[0], points[1]);
+        for (let j = 2; j < points.length; j += 2) c.lineTo(points[j], points[j + 1]);
+        c.closePath();
+        c.fillStyle = fill;
+        c.fill();
+        if (stroke) {
+            c.strokeStyle = stroke;
+            c.lineWidth = weight;
+            c.stroke();
+        }
+    }
+    function line(c, x1, y1, x2, y2, color, weight = 1) {
+        c.beginPath();
+        c.moveTo(x1,y1);
+        c.lineTo(x2,y2);
+        c.strokeStyle = color;
+        c.lineWidth = weight;
+        c.stroke();
+    }
+    function disk(c, x, y, radius, fill) {
+        c.fillStyle = fill;
+        c.beginPath();
+        c.arc(x,y,radius,0,tau);
+        c.fill();
+    }
+    function layer(width, height, y, density, draw) {
+        const surface = document.createElement('canvas');
+        surface.width = Math.ceil(width * density);
+        surface.height = Math.ceil((height-y) * density);
+        const c = surface.getContext('2d');
+        c.scale(surface.width / width, surface.height / (height-y));
+        c.translate(0,-y);
+        c.lineJoin = 'round';
+        c.lineCap = 'round';
+        draw(c);
+        return { surface, y, height: height-y };
+    }
+    function cloud(c,x,y,s) {
+        c.save();c.translate(x,y);c.scale(s*1.42,s*1.42);
+        const puff=new Path2D('M-43 7 C-54 5 -48 -8 -37 -8 Q-29 -26 -16 -18 C-9 -37 16 -32 20 -14 Q36 -20 41 -6 C57 -6 57 10 42 11 Q2 15 -43 7Z');
+        c.fillStyle='#a2dfdc';c.translate(0,4);c.fill(puff);c.translate(0,-4);
+        c.fillStyle='#fffdf0';c.fill(puff);c.restore();
+    }
+    function ridge(c,w,h,edge,fill,sample=6) {
+        c.beginPath();
+        c.moveTo(0,h+2);
+        for (let i=0;i<w;i+=sample) c.lineTo(i,edge(i/w));
+        c.lineTo(w,edge(1));
+        c.lineTo(w,h+2);
+        c.closePath();
+        c.fillStyle = fill;
+        c.fill();
+    }
+    function tree(c,x,y,s,colors,shape) {
+        c.save();
+        c.translate(x,y);
+        c.scale(s,s);
+        if (shape === 0) {
+            polygon(c,[-.8,-.2,0,-20,1.2,-.2],colors[2]);
+            for (let i=0;i<3;i++) {
+                const yy = -29+i*6;
+                const wd = 3.8+i*2.05;
+                polygon(c,[0,yy,wd,yy+11,1,yy+9,-wd,yy+11],colors[0]);
+                polygon(c,[0,yy,0,yy+9,-wd,yy+11],colors[1]);
+            }
+        } else {
+            const wide = shape === 1 ? 8 : 11;
+            c.beginPath();
+            c.moveTo(0,-35);
+            c.bezierCurveTo(wide*.35,-35,wide,-29,wide*.8,-25);
+            c.bezierCurveTo(wide*1.35,-22,wide*1.3,-16,wide,-14);
+            c.bezierCurveTo(wide*1.23,-6,wide*.32,-5,0,-7);
+            c.bezierCurveTo(-wide*1.05,-6,-wide*1.2,-13,-wide,-16);
+            c.bezierCurveTo(-wide*1.3,-20,-wide,-24,-wide*.72,-25);
+            c.bezierCurveTo(-wide*.75,-29,-wide*.35,-35,0,-35);
+            c.closePath();
+            c.fillStyle = colors[0];
+            c.fill();
+            c.save();
+            c.clip();
+            polygon(c,[0,-36,wide*2,-36,wide*2,2,-1,2,1,-12,-1,-15,1,-20,-1.5,-24,.9,-30],colors[1]);
+            c.restore();
+            line(c,0,.4,0,-20,colors[2],1.3);
+            line(c,-.1,-12,-wide*.48,-17,colors[2],1.1);
+            line(c,.1,-15,wide*.43,-21,colors[2],1);
+        }
+        c.restore();
+    }
+    function barn(c,x,y,s) {
+        c.save();
+        c.translate(x,y);
+        c.scale(s,s);
+        const outline='#674637', light='#f6d8a1', shade='#b86543';
+        // Low milk house and galvanized silo.
+        c.fillStyle='#9f9e86';
+        c.fillRect(28,-41,14,41);
+        c.fillStyle='#cfbea0';
+        c.fillRect(30,-41,6,41);
+        c.beginPath();
+        c.moveTo(28,-41);
+        c.bezierCurveTo(28,-52,40,-54,42,-41);
+        c.closePath();
+        c.fillStyle='#706d62';
+        c.fill();
+        line(c,27,-41,43,-41,outline,1.1);
+        for(let y=-37;y<0;y+=5) line(c,28,y,42,y,'#958f79',.8);
+        line(c,39,-40,39,-1,'#746e5e',.8);
+        polygon(c,[-51,-11,-44,-22,-29,-22,-23,-11], '#6d6050');
+        polygon(c,[-49,-11,-26,-11,-26,0,-49,0],shade);
+        c.fillStyle=light; c.fillRect(-47,-8,5,7);
+        // Gambrel silhouette with the long sun-facing back roof.
+        polygon(c,[-40,-20,-32,-33,-21,-40,9,-45,2,-36,-6,-26], '#76665a',outline,1.3);
+        polygon(c,[-40,-20,-6,-26,-6,0,-39,0],'#ac5740',outline,1.1);
+        polygon(c,[-7,-26,0,-38,9,-45,19,-38,26,-24,26,0,-7,0],'#b9593e',outline,1.3);
+        polygon(c,[-6,-26,1.5,-38.5,9,-44,18,-37,25,-24,23,-24,16.5,-35.5,9,-41,3,-36,-3.5,-25],light);
+        line(c,-40,-20,-7,-26,light,1.4);
+        for(let x=-36;x<-7;x+=4) line(c,x,-19-(x+37)*.16,x,-2,'#974b37',.7);
+        for(let x=-3;x<25;x+=3.8) line(c,x,-23,x,-2,'#a14c36',.65);
+        polygon(c,[2,-17,18,-17,18,0,2,0], '#6e493a',light,1.4);
+        line(c,10,-17,10,0,light,1);
+        line(c,2.5,-15.8,9.6,-.8,light,1);
+        line(c,17.5,-15.8,10.4,-.8,light,1);
+        polygon(c,[6,-31,13,-31,13,-24,6,-24], '#674638',light,1);
+        c.fillStyle='#ebcc96';
+        c.fillRect(-32,-14,5,6);
+        c.fillRect(-22,-16,5,6);
+        c.restore();
+    }
+    function mill(c,x,y,s) {
+        c.save(); c.translate(x,y); c.scale(s,s);
+        const steel='#827867';
+        line(c,-7,0,0,-38,steel,1.45); line(c,7,0,0,-38,steel,1.45);
+        for(let k=0;k<3;k++){
+            const y1=-2-k*8, y2=y1-8, a=6.6-k*1.45, b=a-1.45;
+            line(c,-a,y1,b,y2,steel,.8); line(c,a,y1,-b,y2,steel,.8);
+        }
+        line(c,0,-38,17,-38,steel,.9);
+        polygon(c,[11,-39,17,-42,17,-36,11,-37],'#938574');
+        for(let k=0;k<9;k++){
+            c.save(); c.translate(0,-38); c.rotate(k*tau/9);
+            polygon(c,[1,-3,1,-10,5,-9,2.5,-3],k%2?'#ad9376':'#776f62');
+            c.restore();
+        }
+        disk(c,0,-38,1.6,steel); c.restore();
+    }
+    function pumpkin(c,x,y,s) {
+        c.save(); c.translate(x,y); c.scale(s,s);
+        line(c,0,-5,2,-9,'#5d6340',1.8);
+        for (const part of [[-3.7,3.9,'#a15432'],[3.4,4.1,'#ad5831'],[-1,4.2,'#d77a3a'],[1.5,2.8,'#e18a40']]) {
+            c.beginPath(); c.ellipse(part[0],-3.4,part[1],4.65,0,0,tau);
+            c.fillStyle=part[2]; c.fill();
+        }
+        c.restore();
+    }
+    function build(w,h) {
+        const width=Math.ceil(Math.max(w,h*1.34));
+        const density=Math.min(1.65,window.devicePixelRatio||1);
+        const s=Math.min(h/740,width/1080);
+        const sky = layer(width,h,0,density,c=>{
+            const g = c.createLinearGradient(0,0,0,h*.83);
+            g.addColorStop(0,'#91dce8'); g.addColorStop(.58,'#c6f4eb'); g.addColorStop(1,'#fff0ba');
+            c.fillStyle=g; c.fillRect(0,0,width,h);
+            cloud(c,width*.075,h*.26,s*.7);
+            cloud(c,width*.52,h*.19,s*.85);
+            cloud(c,width*.925,h*.36,s*1.12);
+            cloud(c,width*.43,h*.54,s*.58);
+        });
+        const farEdge=t=>h*(.65+.018*Math.sin(tau*t+.2)+.027*Math.cos(tau*t*2-.65)+.012*Math.sin(tau*t*4+1)+.004*Math.cos(tau*t*9));
+        const midEdge=t=>h*(.696+.015*Math.cos(tau*t*2-2.1)+.023*Math.sin(tau*t*3+.1)+.011*Math.cos(tau*t*5-.5));
+        const nearEdge=t=>h*(.75+.018*Math.sin(tau*t*2-.35)+.009*Math.cos(tau*t*5+1.4));
+        const hills=layer(width,h,Math.floor(h*.57),density,c=>{
+            ridge(c,width,h,farEdge,'#9dd1af');
+            const random=rng(1093);
+            // Short strokes follow the sunny sides of the far ridges like cut marks in a print.
+            for(let j=0;j<175;j++){
+                const a=random(), x=a*width, y=farEdge(a)+(3+random()*13)*s;
+                line(c,x,y,x+(3+random()*9)*s,y-1.4*s,'#addbb4',.85*s);
+            }
+            ridge(c,width,h,midEdge,'#88ba86');
+            const woods=['#82bc81','#91c485','#7bb085','#96c689'];
+            for(let j=0;j<Math.ceil(width/(3.5*s));j++){
+                const x=random()*width, s1=(2+random()*5)*s;
+                const y=midEdge(x/width)+1*s;
+                polygon(c,[x-s1*.6,y+1,x-s1*.17,y-s1*.56,x,y-s1,x+s1*.6,y+1],woods[j%4]);
+            }
+            // Exposed slopes and diagonal scythe marks.
+            for(let j=0;j<95;j++){
+                const a=random(), x=a*width, y=midEdge(a)+(5+random()*22)*s;
+                line(c,x,y,x+(2+random()*12)*s,y+2.3*s,'#83b17d',.9*s);
+            }
+        });
+        const fields=layer(width,h,Math.floor(h*.59),density,c=>{
+            // A broken belt of autumn woodland leaves open meadows around the farm.
+            const random=rng(553);
+            const autumn=[
+                ['#f69b42','#a8784e','#816a49'],['#eeb948','#9a7c4e','#776747'],
+                ['#969064','#85875e','#677052'],['#ffaf48','#ad824e','#8c744f'],
+                ['#db7242','#916347','#786348'],['#798360','#6d785a','#646c51']
+            ];
+            for(let j=0;j<220;j++){
+                const x=random()*width, t=x/width, cluster=Math.sin(tau*t*4-1)*.6+Math.cos(tau*t*6)*.3;
+                if(cluster<-.32 || Math.abs(t-.67)<.062) continue;
+                const y=nearEdge(t)+3*s;
+                tree(c,x,y,s*(.28+.57*random()),autumn[Math.floor(random()*autumn.length)],Math.floor(random()*3));
+            }
+            ridge(c,width,h,nearEdge,'#ffd072');
+            // Sown fields, irregular at the hedges and curved to the grade of the land.
+            const form=(t,y,phase)=>h*(y+.015*Math.sin(tau*t*2+phase)+.007*Math.cos(tau*t*3-phase));
+            const tilled=(lo,hi,leftA,rightA,leftB,rightB,fill,mark,spacing,phase)=>{
+                function point(t,base){return [t*width,form(t,base,phase)];}
+                const plot=new Path2D();
+                plot.moveTo(...point(leftA,lo));
+                for(let j=1;j<=32;j++) plot.lineTo(...point(leftA+(rightA-leftA)*j/32,lo));
+                for(let j=0;j<=32;j++) plot.lineTo(...point(rightB+(leftB-rightB)*j/32,hi));
+                plot.closePath();
+                c.fillStyle=fill; c.fill(plot);
+                c.save(); c.clip(plot);
+                for(let j=-2;j<=spacing+2;j++){
+                    const k=j/spacing, ta=leftA+(rightA-leftA)*k, tb=leftB+(rightB-leftB)*k;
+                    const [ax,ay]=point(ta,lo),[bx,by]=point(tb,hi);
+                    c.beginPath(); c.moveTo(ax,ay-1);
+                    c.bezierCurveTo(ax+(bx-ax)*.22,ay+(by-ay)*.37,bx-(bx-ax)*.42,by-(by-ay)*.31,bx,by+1);
+                    c.strokeStyle=mark; c.lineWidth=Math.max(.7,s*(hi>.92?1.6:1)); c.stroke();
+                }
+                c.restore();
+            };
+            tilled(.752,.801,-.05,.36,-.19,.24,'#ffcf69','#c09656',29,.7);
+            tilled(.755,.807,.35,.85,.245,.975,'#ffdf8c','#d9ae65',27,.7);
+            tilled(.77,.824,.83,1.10,.93,1.24,'#f0a74e','#b9844d',24,.7);
+            tilled(.797,.904,-.02,.39,-.23,.687,'#efaa50','#b78244',36,-.5);
+            tilled(.797,.904,.39,1.02,.687,1.23,'#ffce6a','#c99c5e',34,-.5);
+            tilled(.883,1.03,-.04,.48,-.21,.76,'#ffc35a','#ba7f3e',38,.1);
+            tilled(.883,1.03,.48,1.10,.76,1.32,'#f0aa53','#ac7946',28,.1);
+            // The lane narrows from the lower meadow to the barn door.
+            c.fillStyle='#ffe7a6';
+            c.beginPath(); c.moveTo(width*.669,nearEdge(.67)+1);
+            c.bezierCurveTo(width*.69,h*.786,width*.55,h*.79,width*.53,h*.823);
+            c.bezierCurveTo(width*.49,h*.85,width*.65,h*.894,width*.61,h*.917);
+            c.bezierCurveTo(width*.57,h*.959,width*.42,h*.961,width*.39,h*1.012);
+            c.lineTo(width*.29,h*1.012);
+            c.bezierCurveTo(width*.34,h*.94,width*.544,h*.939,width*.576,h*.907);
+            c.bezierCurveTo(width*.60,h*.88,width*.475,h*.855,width*.511,h*.82);
+            c.bezierCurveTo(width*.55,h*.783,width*.684,h*.782,width*.665,nearEdge(.67)+1);
+            c.closePath(); c.fill();
+            const by=nearEdge(.67)+3*s;
+            // Barnyard fencing runs behind the buildings in perspective.
+            for(let j=0;j<17;j++){
+                const x=width*.67+(j-6)*7*s, y=by+(j-6)*.35*s;
+                line(c,x,y-2.3*s,x+7*s,y-1.95*s,'#867956',.8*s);
+                line(c,x,y-4.5*s,x+7*s,y-4.15*s,'#867956',.7*s);
+                line(c,x,y,x,y-5.4*s,'#776e53',1*s);
+            }
+            barn(c,width*.67,by,s*1.01);
+            mill(c,width*.67+64*s,by+2*s,s*.82);
+            for(const [xx,yy,ss] of [[.236,.821,.58],[.247,.813,.34],[.775,.852,.63],[.802,.844,.44],[.825,.846,.35]]){
+                const x=xx*width,y=yy*h,sz=ss*s;
+                c.fillStyle='#bf8a47';c.fillRect(x-6*sz,y-4*sz,12*sz,5*sz);
+                disk(c,x-5*sz,y-3*sz,4.2*sz,'#bb874a');disk(c,x-5*sz,y-3*sz,2.6*sz,'#e2b667');
+                line(c,x-1*sz,y-6*sz,x+6*sz,y-6*sz,'#ecc77f',1.5*sz);
+            }
+            // Group hatchmarks instead of covering the whole field with noise.
+            for(let j=0;j<150;j++){
+                const x=random()*width,y=(.783+random()*.22)*h;
+                for(let k=0;k<3;k++) line(c,x+k*2.8*s,y,x+(k*2.8+1.8)*s,y-1.5*s,'rgba(119,91,53,.3)',.75*s);
+            }
+        });
+        const foreEdge=t=>h*(.957+.023*Math.cos(tau*t+.9)+.016*Math.sin(tau*t*3+.4));
+        const fore=layer(width,h,Math.floor(h*.845),density,c=>{
+            const random=rng(822);
+            const fenceY=t=>foreEdge(t)+h*.014;
+            for(let i=0;i<2;i++){
+                const d=i===0 ? 13.2 : 5.4;
+                c.beginPath();
+                for(let j=0;j<=90;j++){
+                    const x=j/90*width, y=fenceY(j/90)-d*s;
+                    if(j) c.lineTo(x,y); else c.moveTo(x,y);
+                }
+                c.strokeStyle='#806c49'; c.lineWidth=3*s; c.stroke();
+            }
+            const posts=Math.max(12,Math.round(width/(47*s)));
+            for(let j=0;j<posts;j++){
+                const t=(j+.28)/posts,x=t*width,y=fenceY(t);
+                polygon(c,[x-2*s,y+2*s,x-1.5*s,y-17*s,x+.7*s,y-19*s,x+2.1*s,y-17*s,x+1.8*s,y+2*s], '#715c42');
+                line(c,x-.5*s,y-15*s,x-.5*s,y-6*s,'#a78b59',.8*s);
+            }
+            ridge(c,width,h,foreEdge,'#92b95e');
+            ridge(c,width,h,t=>foreEdge(t)+h*(.018+.006*Math.sin(t*tau*5)),'#79a752');
+            // Grass cuts and three heavier clusters at the valley's front edge.
+            for(let j=0;j<230;j++){
+                const x=random()*width, y=foreEdge(x/width)+(random()*30-1)*s, z=(1+random()*3)*s;
+                line(c,x,y,x+z,y-z,'#97915a',.95*s);
+            }
+            for (const [t,sc] of [[.035,1],[.10,.76],[.90,.98],[.965,.84]]) {
+                const x=t*width, y=foreEdge(t)+s*4, a=s*sc;
+                for(let k=0;k<6;k++){
+                    const u=(k-2.5)*4*a, ht=(9+12*random())*a;
+                    polygon(c,[x+u,y+1,x+u*.8-2*a,y-ht*.38,x+u*1.45,y-ht,x+u*.8+1.5*a,y-ht*.44], k%2?'#69714a':'#71774b');
+                }
+                pumpkin(c,x-9*a,y+2*a,a*.89);
+                pumpkin(c,x+4*a,y+3.1*a,a*.65);
+            }
+        });
+        return {w,h,width,sky,hills,fields,fore};
+    }
+    function paintLayer(c,bitmap,width,w,shift) {
+        // Mirror adjoining landscape prints so furrows and hedges join at their edges.
+        const wrapped=(shift % (width*2)+width*2)%(width*2);
+        let index=Math.floor(wrapped/width);
+        for(let x=-(wrapped%width); x<w; x+=width,index++){
+            c.save();
+            c.translate(x+(index%2 ? width : 0),0);
+            if(index%2) c.scale(-1,1);
+            c.drawImage(bitmap.surface,-.3,bitmap.y,width+.6,bitmap.height);
+            c.restore();
+        }
+    }
+    function drawValley(c,w,h,time,scroll,mode) {
+        if(w<=0 || h<=0) return;
+        if(!scene || scene.w!==w || scene.h!==h) scene=build(w,h);
+        const W=scene.width;
+        const crop=(W-w)*.67;
+        const travel=Number.isFinite(scroll)?scroll:0;
+        c.save();
+        paintLayer(c,scene.sky,W,w,crop+travel*.025);
+        // Small distant geese animate independently of the illustrated background plates.
+        const birds=[[.20,.45,0],[.214,.442,1.1],[.228,.448,.4],[.86,.20,2],[.88,.191,.4]];
+        const unit=Math.min(h/800,W/1200);
+        for(const [bx,by,offset] of birds) {
+            const x=((bx*W+time*(1.1+offset*.13)*unit-travel*.052)%W+W)%W-crop;
+            const y=by*h+Math.sin(time*.35+offset)*unit, tip=(.65+.45*Math.sin(time*2+offset))*2.6*unit;
+            c.beginPath(); c.moveTo(x-4.7*unit,y-tip); c.quadraticCurveTo(x-1.6*unit,y-tip*.9,x,y);
+            c.quadraticCurveTo(x+2.1*unit,y-tip,x+4.9*unit,y-tip*.9);
+            c.strokeStyle='#a79270'; c.lineWidth=Math.max(.85,1.28*unit); c.stroke();
+        }
+        paintLayer(c,scene.hills,W,w,crop+travel*.073);
+        paintLayer(c,scene.fields,W,w,crop+travel*.205);
+        paintLayer(c,scene.fore,W,w,crop+travel*.43);
+        c.restore();
+    }
+    function drawGate(c,x,w,topEnd,bottomStart,h,time) {
+        if (x+w<0) return;
+        c.save(); c.translate(x,0);
+        c.lineCap='round'; c.lineJoin='round';
+        const band=w*.15;
+        function beam(y,length,hanging) {
+            if(length<=0) return;
+            c.save();
+            c.beginPath(); c.rect(0,y,w,length); c.clip();
+            const left=w*.105,right=w*.895;
+            c.fillStyle=ink;
+            c.fillRect(left,y,right-left,length);
+            c.fillStyle=hanging?'#9e5537':'#bd7441';
+            c.fillRect(left+1.8,y,right-left-3.6,length);
+            for(let j=0;j<4;j++){
+                const xx=left+(right-left)*(j+.5)/4;
+                line(c,xx,y,xx,y+length,hanging?'#ad6441':'#cb8550',2);
+                if(j<3) line(c,xx+(right-left)/8,y,xx+(right-left)/8,y+length,hanging?'#724936':'#8b5839',1);
+            }
+            const unit=w*1.15;
+            const cap=hanging?y+length:y;
+            const direction=hanging?-1:1;
+            for(let j=0;j<Math.ceil(length/unit);j++){
+                const a=cap+direction*(w*.42+j*unit), b=a+direction*(unit-band*.9);
+                polygon(c,[left+2,a,right-2,b-direction*band*.77,right-2,b,left+2,a+direction*band*.77],hanging?'#ca8650':'#dea35d','#724f3b',1.1);
+                c.fillStyle=ink; c.fillRect(left,a-band*.36,right-left,band*.91);
+                c.fillStyle=hanging?'#c17e50':'#d69652'; c.fillRect(left+1,a-band*.36+1,right-left-2,band*.91-2);
+                disk(c,left+4,a+band*.09,1.05,'#6e503b'); disk(c,right-4,a+band*.09,1.05,'#6e503b');
+            }
+            if(hanging){
+                // Banner pennants hang between the low brace and the lintel, inside the gate.
+                const y0=cap-w*.49;
+                for(let j=0;j<4;j++){
+                    const xx=w*(.12+j*.19);
+                    polygon(c,[xx,y0,xx+w*.19,y0,xx+w*.105,y0+w*.22],['#ebbd71','#b9563f','#d9984d','#718064'][j],'#704b38',1);
+                }
+                c.fillStyle='#654632'; c.fillRect(w*.045,cap-w*.22,w*.91,w*.22);
+                c.fillStyle='#be7240'; c.fillRect(w*.045+1.5,cap-w*.22+1.6,w*.91-3,w*.22-3.1);
+                line(c,w*.09,cap-w*.16,w*.91,cap-w*.16,'#e4a45e',1.4);
+            } else {
+                // Gold produce basket with foreground pumpkins and a slatted rim.
+                const base=cap+w*.33;
+                c.fillStyle='#614f36'; c.fillRect(w*.065,cap+w*.035,w*.87,w*.34);
+                pumpkin(c,w*.30,base-.07*w,w*.022);
+                pumpkin(c,w*.55,base-.095*w,w*.026);
+                pumpkin(c,w*.76,base-.06*w,w*.018);
+                c.fillStyle='#705239'; c.fillRect(w*.035,base-w*.05,w*.93,w*.17);
+                c.fillStyle='#e1a95e'; c.fillRect(w*.035+1.4,base-w*.05+1.5,w*.93-2.8,w*.17-3);
+                line(c,w*.08,base+w*.005,w*.92,base+w*.005,'#f1c582',1);
+            }
+            c.restore();
+        }
+        beam(0,topEnd,true);
+        beam(bottomStart,h-bottomStart,false);
+        c.restore();
+    }
+    return { drawValley, drawGate };
+})();
+
+// A little round Calvey bird, dressed in a turkey's autumn plumage.
+function drawTurkey(c,x,y,scale,pose) {
+  const t=pose.time, beat=Math.sin(pose.flap), ink='#673523';
+  c.save(); c.translate(x,y); c.rotate(pose.tilt); c.scale(scale,scale);
+  const squash=.024*beat;
+  c.scale(1+squash,1-squash);
+  c.lineCap='round'; c.lineJoin='round';
+  function oval(x,y,rx,ry,fill,stroke=ink,weight=3,angle=0) {
+    c.beginPath(); c.ellipse(x,y,rx,ry,angle,0,Math.PI*2);
+    c.fillStyle=fill; c.fill();
+    if(stroke){ c.strokeStyle=stroke; c.lineWidth=weight; c.stroke(); }
+  }
+  function shape(data,fill,edge=ink,width=3) {
+    const path=new Path2D(data);
+    if(fill){c.fillStyle=fill;c.fill(path);}
+    if(edge){c.strokeStyle=edge;c.lineWidth=width;c.stroke(path);}
+  }
+  // Rounded candy-corn tips peek out behind the chestnut body.
+  const feathers=['#e35538','#ff913f','#ca5530','#ffc457','#ed6432'];
+  for(let i=0;i<5;i++) {
+    c.save(); c.translate(-36,8); c.rotate(-1.78+i*.326+.035*beat);
+    oval(0,-39,13.4,40,feathers[i]);
+    shape('M-11 -59 Q-1 -51 11 -60 Q12 -64 10 -68 Q0 -60 -10 -68 Z','#ffe495',null);
+    shape('M0 -15 Q-2 -29 0 -49',null,'#ae5830',2);
+    c.restore();
+  }
+  // Two small feet paddle under the belly.
+  for(const [fx,fy,phase] of [[-24,54,0],[10,56,2]]) {
+    c.save(); c.translate(fx,fy); c.rotate(.18*Math.sin(t*5+phase));
+    shape('M-2 -3 Q2 -3 4 2 L3 9 Q11 12 7 15 Q4 17 -1 12 Q-5 18 -8 15 Q-10 13 -5 9 Z','#ffa52f');
+    c.restore();
+  }
+  const body=c.createRadialGradient(-23,-32,4,2,4,73);
+  body.addColorStop(0,'#ffc47b'); body.addColorStop(.52,'#eda25c'); body.addColorStop(.84,'#cd733d'); body.addColorStop(1,'#ac5735');
+  oval(0,0,72,66,body,ink,4);
+  shape('M-37 39 Q-18 54 8 54 Q26 54 39 46',null,'#e99653',3);
+  // Little feather crest and tiny paddle-shaped wing.
+  shape('M-21 -61 C-32 -69 -35 -80 -29 -80 Q-22 -80 -13 -70 C-18 -86 -9 -88 -4 -78 Q-1 -71 0 -65','#f4a65d');
+  c.save(); c.translate(-45,12); c.rotate(-.20+.91*beat);
+  shape('M3 -5 C-4 -12 -16 -17 -21 -13 Q-25 -9 -18 -4 Q-27 -7 -25 -1 Q-24 4 -16 6 Q-22 7 -17 12 C-9 17 3 9 5 4','#bc653c');
+  shape('M-15 -8 Q-12 -4 -7 -3',null,'#ffd18a',2.6); c.restore();
+  // Downy cream eye surrounds and chocolate button eyes, like the original bird.
+  for (const [ex,ey,rx,ry] of [[8,-19,19,24],[46,-20,17,22]]) {
+    if(pose.blink){shape('M'+(ex-rx*.65)+' '+ey+'q10 -9 '+(rx*1.3)+' 0',null,ink,4);continue;}
+    oval(ex,ey,rx,ry,'#fffbee',ink,2.6);
+    oval(ex+4,ey+2,rx*.57,ry*.67,'#40291f',null);
+    oval(ex+1,ey-4,4.4,5.3,'#fff',null);
+    oval(ex+8,ey+6,2.1,2.3,'#ffedc8',null);
+  }
+  oval(-11,7,11,6,'#f58b77',null,0,-.09);
+  oval(57,3,8,4.5,'#fa9d81',null);
+  // The free end lags behind the turkey's body. Flaps add an impulse to its spring.
+  c.save(); c.translate(50,8); c.rotate(pose.wattle);
+  shape('M-4 -3 C-7 7 2 15 -1 23 C-4 31 -8 38 -2 44 C4 51 16 46 18 38 C22 25 9 19 8 8 Q8 -4 -4 -3 Z','#ef5353','#903637',2.8);
+  shape('M4 27 Q-2 36 3 39',null,'#ffaaa0',3); c.restore();
+  shape('M31 -1 Q43 -11 61 -4 Q66 -1 60 3 Q49 15 41 11 Q35 9 31 -1 Z','#ffbc36');
+  shape('M35 1 Q47 5 58 0',null,'#b06b28',1.9);
+  c.restore();
+}
+
+// The instrument sounds and wingbeats are synthesized locally on the first user gesture.
+const HarvestAudio = (() => {
+    let context, output, featherNoise, turkeyVoice;
+    let muted = false;
+    const lastPlayed = new Map();
+
+    function unlock() {
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (!Context) return;
+        try {
+            if (!context) {
+                context = new Context();
+                output = context.createGain();
+                output.gain.value = muted ? 0 : 0.58;
+                output.connect(context.destination);
+
+                featherNoise = context.createBuffer(1, Math.ceil(context.sampleRate * 0.14), context.sampleRate);
+                const samples = featherNoise.getChannelData(0);
+                for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+                turkeyVoice = context.createPeriodicWave(new Float32Array(8),
+                    new Float32Array([0, 0.8, 0.31, 0.26, 0.17, 0.06, 0.08, 0.025]));
+            }
+            if (context.state !== 'running') {
+                const resuming = context.resume();
+                if (resuming) resuming.catch(() => {});
+            }
+        } catch (_) {
+            // Flight is still available in browsers without usable Web Audio.
+        }
+    }
+
+    function setMuted(value) {
+        muted = Boolean(value);
+        if (output) output.gain.setTargetAtTime(muted ? 0 : 0.58, context.currentTime, 0.006);
+    }
+
+    function note(when, pitch, duration, loudness, wave = 'sine', endPitch = pitch, attack = 0.01) {
+        const oscillator = context.createOscillator();
+        const envelope = context.createGain();
+        if (typeof wave === 'string') oscillator.type = wave;
+        else oscillator.setPeriodicWave(wave);
+        oscillator.frequency.setValueAtTime(pitch, when);
+        oscillator.frequency.exponentialRampToValueAtTime(endPitch, when + duration);
+        envelope.gain.setValueAtTime(0.0001, when);
+        envelope.gain.exponentialRampToValueAtTime(loudness, when + attack);
+        envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+        oscillator.connect(envelope);
+        envelope.connect(output);
+        oscillator.start(when);
+        oscillator.stop(when + duration + 0.01);
+    }
+
+    function wingbeat(when) {
+        const noise = context.createBufferSource();
+        const filter = context.createBiquadFilter();
+        const gain = context.createGain();
+        noise.buffer = featherNoise;
+        noise.playbackRate.value = 0.93 + Math.random() * 0.14;
+        filter.type = 'bandpass';
+        filter.Q.value = 0.75;
+        filter.frequency.setValueAtTime(3200, when);
+        filter.frequency.exponentialRampToValueAtTime(850, when + 0.103);
+        gain.gain.setValueAtTime(0.0001, when);
+        gain.gain.exponentialRampToValueAtTime(0.27, when + 0.016);
+        gain.gain.exponentialRampToValueAtTime(0.018, when + 0.038);
+        gain.gain.exponentialRampToValueAtTime(0.13, when + 0.058);
+        gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.115);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(output);
+        noise.start(when);
+        noise.stop(when + 0.127);
+    }
+
+    function gobble(when) {
+        const pitch = 470 + Math.random() * 33;
+        const voice = context.createOscillator();
+        const throat = context.createBiquadFilter();
+        const volume = context.createGain();
+        voice.setPeriodicWave(turkeyVoice);
+        throat.type = 'bandpass';
+        throat.Q.value = 1;
+        throat.frequency.value = 1280;
+        voice.connect(throat);
+        throat.connect(volume);
+        volume.connect(output);
+        volume.gain.setValueAtTime(0.0001, when);
+        // A pair of short pickup syllables followed by a rapidly bubbling, descending call.
+        const syllables = [
+            [0, 1.32, 0.048], [0.076, 1.52, 0.052], [0.157, 1.24, 0.038],
+            [0.206, 1.38, 0.038], [0.254, 1.27, 0.034], [0.297, 1.15, 0.032],
+            [0.338, 1.12, 0.031], [0.378, 1.04, 0.047]
+        ];
+        for (const [offset, ratio, length] of syllables) {
+            const at = when + offset;
+            voice.frequency.setValueAtTime(pitch * ratio * 0.84, at);
+            voice.frequency.exponentialRampToValueAtTime(pitch * ratio * 1.18, at + 0.012);
+            voice.frequency.exponentialRampToValueAtTime(pitch * ratio * 0.73, at + length);
+            throat.frequency.setValueAtTime(940 * ratio, at);
+            throat.frequency.exponentialRampToValueAtTime(1510 * ratio, at + length * 0.55);
+            volume.gain.setValueAtTime(0.0001, at);
+            volume.gain.exponentialRampToValueAtTime(0.37, at + 0.007);
+            volume.gain.exponentialRampToValueAtTime(0.0001, at + length);
+        }
+        voice.start(when);
+        voice.stop(when + 0.44);
+    }
+
+    function pluck(when, pitch, strength) {
+        note(when, pitch, 0.36, strength, 'triangle', pitch * 0.999, 0.004);
+        note(when + 0.007, pitch * 1.004, 0.22, strength * 0.45, 'sine', pitch, 0.003);
+        note(when, pitch * 2, 0.09, strength * 0.35, 'sine', pitch * 2, 0.003);
+    }
+
+    function play(name) {
+        if (muted || !output || context.state === 'closed') return;
+        const when = context.currentTime + 0.003;
+        const minGap = name === 'flap' ? 0.08 : name === 'gobble' ? 0.65 : 0.075;
+        if (when - (lastPlayed.get(name) ?? -10) < minGap) return;
+        lastPlayed.set(name, when);
+        switch (name) {
+            case 'flap': wingbeat(when); break;
+            case 'gobble': gobble(when); break;
+            case 'score':
+                pluck(when, 523.25, 0.20);
+                pluck(when + 0.075, 783.99, 0.15);
+                break;
+            case 'pie':
+                note(when, 1330, 0.58, 0.16);
+                note(when, 3202, 0.22, 0.044);
+                note(when + 0.15, 1675, 0.53, 0.13);
+                note(when + 0.15, 3970, 0.22, 0.035);
+                break;
+            case 'harvest':
+                [392, 493.88, 587.33, 783.99, 659.25, 783.99].forEach((hz, i) => {
+                    const at = when + i * 0.093;
+                    pluck(at, hz, 0.17);
+                    if (i === 3 || i === 5) pluck(at + 0.014, hz * 0.5, 0.12);
+                });
+                break;
+            case 'land':
+                [587.33, 523.25, 392].forEach((hz, i) => pluck(when + i * 0.109, hz, 0.145));
+                break;
+        }
+    }
+    return { unlock, setMuted, play };
+})();
+
+const HarvestEffects = (() => {
+    const particles = [];
+    const colors = ['#b74e32', '#d89538', '#e7ba62', '#8d4930'];
+    const ink = '#502f25';
+    const counts = { feathers: 3, leaves: 6, cranberries: 5, pie: 1, harvest: 20 };
+    const range = (a, b) => a + (b - a) * Math.random();
+
+    function clear() { particles.length = 0; }
+
+    function burst(kind, x, y, scale = 1) {
+        const count = counts[kind];
+        if (!count || !(scale > 0)) return;
+        const extra = particles.length + count - 160;
+        if (extra > 0) particles.splice(0, extra);
+        for (let i = 0; i < count; i++) {
+            const shape = kind === 'harvest' ? ['leaves', 'seeds', 'cranberries', 'seeds'][i % 4] : kind;
+            const fan = kind === 'harvest';
+            const light = shape === 'leaves' || shape === 'feathers' || shape === 'seeds';
+            const size = shape === 'pie' ? 15 : shape === 'cranberries' ? range(4, 6) : range(4.5, 8);
+            particles.push({
+                shape, x: x + range(-4, 4) * scale, y: y + range(-4, 4) * scale, size: size * scale,
+                color: colors[Math.floor(range(0, colors.length))],
+                vx: (fan ? range(-140, 145) : shape === 'pie' ? range(-18, 12) : range(-105, 15)) * scale,
+                vy: (fan ? range(-165, 20) : shape === 'pie' ? -70 : range(-74, 14)) * scale,
+                gravity: (light ? range(22, 54) : range(165, 220)) * scale,
+                drift: light ? range(11, 24) * scale : 0, phase: range(0, 6.28),
+                angle: shape === 'pie' ? -0.1 : range(-2.9, 2.9),
+                spin: shape === 'pie' ? range(-1.1, 1.1) : range(-3.5, 3.5),
+                life: shape === 'feathers' ? range(0.42, 0.68) : range(1.1, 1.7),
+                age: 0
+            });
+        }
+    }
+
+    function update(dt, scrollSpeed = 0) {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.age += dt;
+            if (p.age >= p.life || p.x < -50) {
+                particles.splice(i, 1);
+                continue;
+            }
+            p.x += (p.vx + Math.sin(p.phase + p.age * 6) * p.drift - scrollSpeed * 0.72) * dt;
+            p.y += p.vy * dt;
+            p.vy += p.gravity * dt;
+            p.angle += p.spin * dt;
+        }
+    }
+
+    function leaf(c, color) {
+        c.fillStyle = color;
+        c.beginPath();
+        c.moveTo(0.05, 0.8);
+        c.lineTo(-0.85, 0.22); c.lineTo(-0.64, 0.03); c.lineTo(-0.97, -0.46);
+        c.lineTo(-0.38, -0.3); c.lineTo(-0.25, -0.7); c.lineTo(-0.07, -0.55);
+        c.lineTo(0.12, -1.14); c.lineTo(0.39, -0.5); c.lineTo(0.63, -0.69);
+        c.lineTo(0.59, -0.22); c.lineTo(0.99, -0.31); c.lineTo(0.77, 0.11);
+        c.lineTo(0.92, 0.16); c.closePath();
+        c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(-0.1, 1.13); c.quadraticCurveTo(0.13, 0.53, 0.11, -0.43); c.stroke();
+    }
+
+    function feather(c) {
+        c.fillStyle = '#eac788';
+        c.beginPath(); c.moveTo(-1.12, 0.58);
+        c.quadraticCurveTo(-0.62, -0.56, 0.86, -0.65);
+        c.quadraticCurveTo(0.96, 0.02, 0.43, 0.22);
+        c.lineTo(0.32, 0.15); c.quadraticCurveTo(-0.18, 0.65, -1.12, 0.58);
+        c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(-1.25, 0.7); c.lineTo(0.59, -0.43); c.stroke();
+    }
+
+    function berry(c) {
+        c.fillStyle = '#ac383b';
+        c.beginPath(); c.arc(0, 0, 0.82, 0, Math.PI * 2); c.fill(); c.stroke();
+        c.fillStyle = '#f5c797';
+        c.beginPath(); c.ellipse(-0.24, -0.27, 0.23, 0.12, -0.65, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.moveTo(0.17, -0.65); c.quadraticCurveTo(0.52, -0.78, 0.43, -1.08); c.stroke();
+    }
+
+    function pie(c) {
+        // Pumpkin filling, fluted crust, and a dollop of whipped cream.
+        c.fillStyle = '#bf6238'; c.beginPath(); c.moveTo(-1.14, 0); c.lineTo(0.77, -0.55);
+        c.lineTo(1.11, -0.08); c.lineTo(0.94, 0.44); c.lineTo(-1.02, 0.38); c.closePath(); c.fill(); c.stroke();
+        c.fillStyle = '#e9ad57'; c.beginPath(); c.moveTo(-1.03, 0.18); c.lineTo(0.97, 0.23);
+        c.lineTo(1.01, 0.42); c.lineTo(-1, 0.43); c.closePath(); c.fill(); c.stroke();
+        c.fillStyle = '#f2ce8c'; c.beginPath(); c.moveTo(0.66,-0.49);
+        c.quadraticCurveTo(0.73,-0.79,0.87,-0.53); c.quadraticCurveTo(1.05,-0.61,1.03,-0.37);
+        c.quadraticCurveTo(1.28,-0.40,1.10,-0.10); c.closePath(); c.fill(); c.stroke();
+        c.fillStyle = '#fff0d1'; c.beginPath(); c.moveTo(-0.27,-0.17);
+        c.quadraticCurveTo(-0.42,-0.40,-0.13,-0.51); c.quadraticCurveTo(-0.03,-0.58,-0.08,-0.73);
+        c.quadraticCurveTo(0.41,-0.56,0.36,-0.31); c.quadraticCurveTo(0.14,-0.12,-0.27,-0.17); c.fill(); c.stroke();
+    }
+
+    function draw(c) {
+        c.save();
+        c.lineJoin = 'round'; c.lineCap = 'round'; c.strokeStyle = ink;
+        const originalAlpha = c.globalAlpha;
+        for (const p of particles) {
+            c.save(); c.translate(p.x, p.y); c.rotate(p.angle);
+            const flutter = p.shape === 'leaves' ? 0.75 + 0.25 * Math.cos(p.phase + p.age * 5) : 1;
+            c.scale(p.size * flutter, p.size);
+            c.globalAlpha = originalAlpha * Math.min(1, (p.life - p.age) / (p.life * 0.28));
+            c.lineWidth = p.shape === 'pie' ? 0.08 : 0.125;
+            if (p.shape === 'leaves') leaf(c, p.color);
+            else if (p.shape === 'feathers') feather(c);
+            else if (p.shape === 'cranberries') berry(c);
+            else if (p.shape === 'pie') pie(c);
+            else {
+                c.fillStyle = '#edbf66';
+                c.beginPath(); c.ellipse(0, 0, 0.34, 0.75, 0, 0, Math.PI * 2);
+                c.fill(); c.stroke();
+            }
+            c.restore();
+        }
+        c.restore();
+    }
+
+    return { clear, burst, update, draw };
+})();
+</script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const stage = $('stage'), canvas = $('scene'), ctx = canvas.getContext('2d');
+const board = $('board'), reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const clamp = (n,low,high) => Math.max(low,Math.min(high,n));
+const TAU = Math.PI*2;
+const scoreKey = 'calveybird_thanksgiving_flights_v1';
+function read(key) { try { return localStorage.getItem(key); } catch { return null; } }
+function save(key,value) { try { localStorage.setItem(key,value); } catch { /* Storage may be disabled for local files. */ } }
+function uniqueId() { return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,11); }
+function rankFlights(a,b) { return b.score-a.score || b.distance-a.distance || b.date-a.date; }
+function getHistory() {
+  try { return (JSON.parse(read(scoreKey)) || []).filter(f => f && Number.isFinite(f.score) && Number.isFinite(f.distance) && Number.isFinite(f.date)).sort(rankFlights); }
+  catch { return []; }
+}
+let flights=getHistory(), lastFlight=null;
+let playerId=read('calveybird_id') || uniqueId();
+let muted=(read('calveybird_thanksgiving_sound') || read('calveybird_sound'))==='off';
+save('calveybird_id',playerId);
+function soundUI() {
+  HarvestAudio.setMuted(muted);
+  $('soundText').textContent=muted?'Sound off':'Sound on';
+  $('soundIcon').setAttribute('href',muted?'#mute':'#sound');
+  $('soundBtn').setAttribute('aria-pressed',String(!muted));
+}
+$('soundBtn').onclick=event => {
+  HarvestAudio.unlock(); muted=!muted; soundUI(); save('calveybird_thanksgiving_sound',muted?'off':'on');
+  if (!muted) HarvestAudio.play('gobble');
+  if (event.detail>0 && (state==='flying' || state==='ready')) stage.focus({preventScroll:true});
+};
+function showBest() { const n=flights[0]?.score || 0; $('best').textContent=n+(n===1?' gate':' gates'); }
+showBest(); soundUI();
+
+let w=0,h=0,unit=1,dpr=1,portrait=false;
+let state='menu', clock=0, previousFrame=0, elapsed=0, distance=0, travel=0;
+let score=0, flaps=0, celebrationLeft=0, landingLeft=0, lastGobble=0, nextDrop=0, drops=0;
+let gates=[];
+const bird={x:0,y:0,vy:0,tilt:0,wing:0,spin:0,wattle:0,wattleSpeed:0};
+function resize() {
+  const oldH=h, oldUnit=unit, oldX=bird.x;
+  w=Math.max(1,stage.clientWidth); h=Math.max(1,stage.clientHeight);
+  unit=clamp(h/650,.40,1.65);
+  dpr=Math.min(window.devicePixelRatio || 1,2);
+  canvas.width=Math.round(w*dpr); canvas.height=Math.round(h*dpr);
+  ctx.setTransform(canvas.width/w,0,0,canvas.height/h,0,0);
+  portrait=w/h<=.9;
+  // The button stays under the copy on desktop, and under the bird on a tall poster.
+  const parent=portrait?$('intro'):document.querySelector('.intro-copy');
+  if ($('desktopLaunch').parentElement!==parent) parent.append($('desktopLaunch'));
+  bird.x=clamp(w*.25,46*unit,Math.max(65*unit,w*.31));
+  if (oldH) {
+    bird.y*=h/oldH; bird.vy*=unit/oldUnit;
+    for (const g of gates) { g.x=bird.x+(g.x-oldX)*unit/oldUnit; g.center*=h/oldH; g.gap*=h/oldH; }
+  }
+  if (state==='ready' || state==='flying') fillGates();
+  render();
+}
+
+const printedLeaf=new Path2D('M0 -14 L3 -6 L6 -8 L6 -3 L13 -6 L11 0 L14 0 L5 6 L7 8 L1 8 L0 13 L-1 13 L-1 7 L-8 8 L-6 5 L-14 0 L-11 -1 L-12 -6 L-6 -4 L-6 -8 L-3 -6 Z');
+const leafSites=[[.505,.135,.8,-.7],[.555,.34,1.1,-1.15],[.86,.115,.75,.5],[.925,.47,1,-.5],[.55,.55,.60,1.35],[.86,.615,.7,-.95]];
+function autumnLeaf(x,y,size,angle,color) {
+  ctx.save(); ctx.translate(x,y); ctx.rotate(angle); ctx.scale(size,size);
+  ctx.fillStyle=color; ctx.strokeStyle='#855436'; ctx.lineJoin='round'; ctx.lineWidth=.9;
+  ctx.fill(printedLeaf); ctx.stroke(printedLeaf); ctx.beginPath(); ctx.moveTo(0,8); ctx.lineTo(0,-8);
+  ctx.moveTo(0,4); ctx.lineTo(-7,0); ctx.moveTo(0,2); ctx.lineTo(7,-1); ctx.stroke(); ctx.restore();
+}
+// Squashy pumpkins sit on the front edge of the title scene.
+function pumpkinPals(t) {
+  function pumpkin(x,y,size,color,lean) {
+    ctx.save();ctx.translate(x,y);ctx.scale(size,size);ctx.rotate(lean);
+    const ink='#773e2b';
+    function oval(x,y,rx,ry,fill,stroke) {
+      ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,TAU);ctx.fillStyle=fill;ctx.fill();
+      if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2.5;ctx.stroke();}
+    }
+    const stem=new Path2D('M-3 -20 Q-5 -29 1 -34 L7 -32 Q2 -27 5 -20 Z');
+    ctx.fillStyle='#698839';ctx.fill(stem);ctx.strokeStyle=ink;ctx.lineWidth=2.5;ctx.stroke(stem);
+    oval(-11,0,16,20,color,ink);oval(11,0,16,20,color,ink);
+    oval(0,0,15,22,color,ink);
+    for(const side of [-1,1]) {
+      oval(side*8,-1,2.4,3.3,ink);oval(side*14,4,3.6,2,'#ff9b78');
+    }
+    ctx.beginPath();ctx.moveTo(-3,4);ctx.quadraticCurveTo(0,8,3,4);ctx.stroke();
+    ctx.restore();
+  }
+  const s=clamp(Math.min(w/720,h/480),.65,2.25);
+  pumpkin(31*s,h-12*s,s*1.3,'#ff922f',-.13+.035*Math.sin(t*1.8));
+  pumpkin(84*s,h-8*s,s*.84,'#ffc24d',.14);
+  pumpkin(w-32*s,h-10*s,s*1.18,'#ff933a',.11-.04*Math.sin(t*1.8));
+}
+
+function titleArt(t) {
+  const x=w*(portrait?.53:.715), y=h*(portrait?.46:.383);
+  const radius=portrait?Math.min(w*.288,h*.171):Math.min(w*.146,h*.251);
+  ctx.save(); ctx.translate(x,y);
+  const sun=ctx.createRadialGradient(-radius*.23,-radius*.36,radius*.08,0,0,radius);
+  sun.addColorStop(0,'#fff9ad'); sun.addColorStop(1,'#ffce57');
+  ctx.beginPath();ctx.arc(0,0,radius,0,TAU);ctx.fillStyle=sun;ctx.fill();
+  ctx.strokeStyle='#fff6b2';ctx.lineWidth=radius*.046;ctx.stroke();
+  ctx.lineCap='round';ctx.lineWidth=radius*.034;
+  for(let i=0;i<18;i++) {
+    const a=TAU*i/18, r=radius*1.12, end=r+radius*(.055+.022*Math.sin(t*2+i));
+    ctx.beginPath();ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);ctx.lineTo(Math.cos(a)*end,Math.sin(a)*end);ctx.stroke();
+  }
+  ctx.restore();
+  const bob=Math.sin(t*1.55)*(portrait?3:5), turkeyScale=radius*(portrait?.0092:.00985);
+  // Curved slipstream strokes travel with the turkey's tail.
+  ctx.save(); ctx.translate(x-radius*1.02,y+radius*.26+bob); ctx.scale(radius/140,radius/140);
+  ctx.lineCap='round'; ctx.strokeStyle='#a97743'; ctx.lineWidth=1.5;
+  for (const [dx,dy,len] of [[-4,0,65],[-1,9,45],[-13,-11,34]]) {
+    ctx.beginPath(); ctx.moveTo(dx,dy); ctx.quadraticCurveTo(dx-len*.58,dy+5,dx-len,dy+4); ctx.stroke();
+  }
+  ctx.restore();
+  drawTurkey(ctx,x+radius*.03,y+bob,turkeyScale,{time:t,wattle:.17+.57*Math.sin(t*4.7-.9),flap:t*4.7+.6,tilt:-.055+Math.sin(t*1.23)*.024,blink:t%4.2>4.03});
+  pumpkinPals(t);
+  const mobileLeaves=[[.12,.34,.7,-.7],[.11,.55,.8,-.9],[.80,.29,.58,.65],[.91,.56,.82,.6]];
+  (portrait?mobileLeaves:leafSites).forEach(([lx,ly,z,angle],i) => {
+    const drift=Math.sin(t*.57+i)*5;
+    autumnLeaf(w*lx+drift,h*ly+Math.cos(t*.55+i)*4,z*clamp(radius/150,.62,1.35),angle+drift*.034,['#f16d40','#f1a537','#e8583e'][i%3]);
+  });
+}
+
+function addGate(x,isFirst=false) {
+  // Both base games vary the gap and increase scrolling speed every ten clearances.
+  const roll=Math.random();
+  const gapUnits=isFirst?228:roll<.25?154+Math.random()*22:roll<.60?177+Math.random()*26:199+Math.random()*26;
+  const gap=Math.min(gapUnits*unit,h*.52);
+  const min=h*.085+gap/2,max=h*.91-gap/2;
+  const last=gates.at(-1);
+  const center=isFirst?h*.48:clamp((last?.center || h*.5)+(Math.random()-.5)*260*unit,min,max);
+  gates.push({x,center,gap,passed:false});
+}
+function fillGates() {
+  if (!gates.length) addGate(bird.x+Math.min(390*unit,w*.78),true);
+  const spacing=319*unit;
+  while (gates.at(-1).x<w+spacing) addGate(gates.at(-1).x+spacing);
+}
+function launch() {
+  HarvestAudio.unlock(); HarvestEffects.clear();
+  score=flaps=elapsed=distance=travel=drops=celebrationLeft=0; nextDrop=5.5; lastGobble=0;
+  bird.y=h*.48; bird.vy=bird.tilt=bird.wing=bird.spin=bird.wattle=bird.wattleSpeed=0;
+  gates=[]; fillGates(); lastFlight=null; state='ready';
+  $('intro').hidden=$('finish').hidden=$('celebrate').hidden=true;
+  $('hud').hidden=false; $('score').textContent='0';
+  $('readyHint').hidden=false; stage.focus({preventScroll:true});
+  HarvestAudio.play('gobble');
+}
+function flap() {
+  if (state!=='ready' && state!=='flying') return;
+  HarvestAudio.unlock(); state='flying'; $('readyHint').hidden=true; flaps++;
+  bird.vy=-6.75*60*unit; bird.wing=1; bird.wattleSpeed=Math.max(-10,bird.wattleSpeed-8);
+  HarvestAudio.play('flap');
+  const x=bird.x-15*unit,y=bird.y+4*unit;
+  HarvestEffects.burst(flaps%4===1?'leaves':'feathers',x,y,unit);
+  if (elapsed-lastGobble>=3.5 && flaps%3===0) {
+    lastGobble=elapsed; HarvestAudio.play('gobble'); HarvestEffects.burst('leaves',x,y,unit);
+  }
+}
+function point() {
+  score++; $('score').textContent=score; HarvestAudio.play('score');
+  if (score%10===0) {
+    celebrationLeft=1.3; $('celebrate').hidden=false; $('celebrate').textContent=score===10?'Harvest time!':'Happy Thanksgiving!';
+    HarvestAudio.play('harvest'); HarvestEffects.burst('harvest',bird.x,bird.y,unit*1.3);
+    bird.spin=reducedMotion.matches?0:1;
+  }
+}
+function touchDown() {
+  if (state!=='flying') return;
+  state='landing'; landingLeft=.49; $('celebrate').hidden=true;
+  HarvestAudio.play('land'); HarvestEffects.burst('leaves',bird.x,bird.y,unit*1.45);
+  lastFlight={key:'thanksgiving-'+uniqueId(),score,distance:Math.floor(distance),date:Date.now()};
+  const priorBest=flights[0]?.score || 0;
+  // Merge with other tabs when the browser shares storage.
+  const records=new Map([...flights,...getHistory(),lastFlight].map(f=>[f.key,f]));
+  flights=[...records.values()].sort(rankFlights).slice(0,20); save(scoreKey,JSON.stringify(flights)); showBest();
+  $('finalGates').textContent=score; $('finalMeters').textContent=lastFlight.distance+' m'; $('finalBest').textContent=flights[0].score;
+  $('remark').textContent=score>priorBest?'A new personal best. Save this turkey a slice of pie!':
+    score>=10?'That flight earned a second helping.':score>0?'There’s a place for you at the harvest table.':'A soft landing in the pumpkin patch.';
+}
+function update(dt) {
+  if (state==='landing') {
+    HarvestEffects.update(dt,0); landingLeft-=dt;
+    if (landingLeft<=0) {
+      state='over'; $('hud').hidden=true; $('finish').hidden=false; $('replay').focus({preventScroll:true});
+    }
+    return;
+  }
+  if (state!=='flying') return;
+  elapsed+=dt; distance+=12*dt;
+  const speed=Math.min(3.5+Math.floor(score/10)*.15,6.5)*60*unit;
+  travel+=speed*dt;
+  // Original velocity, gravity and terminal speed converted from 60 Hz frames to seconds.
+  bird.vy=Math.min(9*60*unit,bird.vy+.375*3600*unit*dt);
+  bird.y+=bird.vy*dt;
+  const target=clamp(bird.vy/(60*unit)*.075,-.45,.87);
+  bird.tilt+=(target-bird.tilt)*(1-Math.exp(-7*dt));
+  const hangingAngle=-bird.tilt+.18;
+  bird.wattleSpeed+=((hangingAngle-bird.wattle)*86-bird.wattleSpeed*5.6)*dt;
+  bird.wattle=clamp(bird.wattle+bird.wattleSpeed*dt,-1.1,1.12);
+  bird.wing=Math.max(0,bird.wing-dt*3.6); bird.spin=Math.max(0,bird.spin-dt*1.8);
+  HarvestEffects.update(dt,speed);
+  if (elapsed>=nextDrop) {
+    drops++; const pie=drops%2===1;
+    HarvestEffects.burst(pie?'pie':'cranberries',bird.x-2*unit,bird.y+10*unit,unit*1.08);
+    if (pie) HarvestAudio.play('pie');
+    nextDrop=elapsed+4+Math.random()*2.5;
+  }
+  if (celebrationLeft>0 && (celebrationLeft-=dt)<=0) $('celebrate').hidden=true;
+  const hit=12*unit, gateWidth=70*unit;
+  for (const gate of gates) {
+    gate.x-=speed*dt;
+    if (bird.x+hit>gate.x && bird.x-hit<gate.x+gateWidth
+         && (bird.y-hit<gate.center-gate.gap/2 || bird.y+hit>gate.center+gate.gap/2)) {
+      touchDown(); return;
+    }
+    if (!gate.passed && gate.x+gateWidth<bird.x-hit) { gate.passed=true; point(); }
+  }
+  if (bird.y<hit+4 || bird.y>h-8*unit-hit) { touchDown(); return; }
+  gates=gates.filter(g=>g.x+gateWidth>0); fillGates();
+}
+function render() {
+  if (!w || !h) return;
+  const title=state==='menu', t=(title && reducedMotion.matches)?0:clock;
+  drawValley(ctx,w,h,t,travel,title?'title':'play');
+  if (title) { titleArt(t); return; }
+  const gateWidth=70*unit;
+  for (const g of gates) if (g.x<=w && g.x+gateWidth>=0) drawGate(ctx,g.x,gateWidth,g.center-g.gap/2,g.center+g.gap/2,h,t);
+  HarvestEffects.draw(ctx);
+  const ready=state==='ready';
+  const wing=ready?t*3.5:.3+bird.wing*5.6+Math.sin(t*5)*.15;
+  const angle=bird.tilt+(bird.spin?TAU*(1-bird.spin):0);
+  drawTurkey(ctx,bird.x,bird.y+(ready?Math.sin(t*2)*3*unit:0),unit*.265,{time:t,flap:wing,wattle:ready?.34*Math.sin(t*3.5-.8):bird.wattle,tilt:angle,blink:t%4.2>4.02});
+}
+function frame(now) {
+  const dt=previousFrame?Math.min((now-previousFrame)/1000,.05):0;
+  previousFrame=now;
+  if (!document.hidden && !board.open && state!=='over') {
+    clock+=dt;
+    // Small steps keep collision checks consistent on displays with different refresh rates.
+    const steps=Math.max(1,Math.ceil(dt*120));
+    for (let i=0;i<steps;i++) update(dt/steps);
+    render();
+  }
+  requestAnimationFrame(frame);
+}
+function menu() {
+  state='menu'; travel=0; $('intro').hidden=false;
+  $('hud').hidden=$('finish').hidden=$('readyHint').hidden=$('celebrate').hidden=true;
+  $('startBtn').focus({preventScroll:true}); render();
+}
+$('startBtn').onclick=launch; $('replay').onclick=launch; $('menuBtn').onclick=menu;
+canvas.addEventListener('pointerdown',e=>{
+  if (!e.isPrimary || e.button!==0 || board.open) return;
+  if (state==='menu') launch(); else flap();
+});
+document.addEventListener('keydown',e=>{
+  if (board.open || e.altKey || e.ctrlKey || e.metaKey || (e.code!=='Space' && e.code!=='ArrowUp')) return;
+  if (e.target.closest('button') && !['startBtn','replay'].includes(e.target.id) && !['flying','ready'].includes(state)) return;
+  if (e.target.closest('input') || e.target===$('soundBtn') || e.target===$('boardBtn')) return;
+  e.preventDefault(); if (e.repeat) return;
+  if (state==='menu' || state==='over') launch(); else flap();
+});
+document.addEventListener('visibilitychange',()=>{previousFrame=0;});
+
+// Original Calvey Bird arcade board, with a device-only history available offline.
+const sharedURL='https://calveybird-default-rtdb.firebaseio.com/leaderboard';
+let activeTab='local', requestVersion=0, posting=false;
+function displayRows(rows) {
+  const list=$('list'); list.replaceChildren();
+  rows.forEach((row,i)=>{
+    const li=document.createElement('li'), left=document.createElement('span'), rank=document.createElement('span'), right=document.createElement('strong');
+    rank.className='rank'; rank.textContent=String(i+1).padStart(2,'0');
+    left.append(rank,document.createTextNode(row.label)); right.textContent=row.score+(row.score===1?' gate':' gates');
+    li.append(left,right); list.append(li);
+  });
+}
+async function requestBoard(url,options={}) {
+  const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),6000);
+  try {
+    const response=await fetch(url,{...options,signal:controller.signal});
+    if (!response.ok) throw new Error(String(response.status));
+    return await response.json();
+  } finally { clearTimeout(timeout); }
+}
+async function selectTab(which) {
+  activeTab=which; const version=++requestVersion;
+  $('localTab').setAttribute('aria-pressed',String(which==='local'));
+  $('globalTab').setAttribute('aria-pressed',String(which==='global'));
+  $('postForm').hidden=which!=='global' || !lastFlight || lastFlight.score<1 || lastFlight.posted;
+  $('postStatus').textContent=''; displayRows([]);
+  if (which==='local') {
+    $('boardMsg').textContent=flights.length?'':'Finish a flight to record your first score.';
+    displayRows(flights.map(f=>({label:new Date(f.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+f.distance+' m',score:f.score})));
+    return;
+  }
+  $('boardMsg').textContent='Checking the shared leaderboard…';
+  try {
+    const data=await requestBoard(sharedURL+'.json?orderBy=%22score%22&limitToLast=200');
+    if (version!==requestVersion || !board.open) return;
+    const byName=new Map();
+    for (const item of Object.values(data || {})) {
+      if (!item || !Number.isFinite(item.score)) continue;
+      const label=String(item.name || 'ANON').toUpperCase().slice(0,10);
+      byName.set(label,Math.max(byName.get(label) || 0,item.score));
+    }
+    const rows=Array.from(byName,([label,score])=>({label,score})).sort((a,b)=>b.score-a.score).slice(0,50);
+    displayRows(rows); $('boardMsg').textContent=rows.length?'':'The shared leaderboard has no scores yet.';
+  } catch { if (version===requestVersion && board.open) $('boardMsg').textContent='The shared leaderboard is unavailable. Your flights are saved on this device.'; }
+}
+$('boardBtn').onclick=()=>{
+  board.showModal(); $('initials').value=(read('calveybird_name') || '').slice(0,10);
+  selectTab('local');
+};
+$('closeBoard').onclick=()=>board.close();
+board.addEventListener('close',()=>{
+  requestVersion++; previousFrame=0;
+  if (state==='ready' || state==='flying') stage.focus({preventScroll:true});
+});
+board.addEventListener('click',e=>{
+  if (e.target!==board) return;
+  const r=board.getBoundingClientRect(); if (e.clientX<r.left || e.clientX>r.right || e.clientY<r.top || e.clientY>r.bottom) board.close();
+});
+$('localTab').onclick=()=>selectTab('local'); $('globalTab').onclick=()=>selectTab('global');
+$('postForm').onsubmit=async e=>{
+  e.preventDefault(); const name=$('initials').value.trim().toUpperCase().slice(0,10), flight=lastFlight;
+  if (!name || !flight || flight.posted || posting) return;
+  posting=true; const button=e.currentTarget.querySelector('button'); button.disabled=true;
+  $('postStatus').textContent='Posting score…';
+  try {
+    await requestBoard(sharedURL+'/'+flight.key+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,score:flight.score,distance:flight.distance,playerId,timestamp:{'.sv':'timestamp'}})});
+    flight.posted=true; save('calveybird_name',name);
+    if (board.open && activeTab==='global' && lastFlight===flight) { await selectTab('global'); if (activeTab==='global' && board.open) $('postStatus').textContent='Score posted.'; }
+  } catch { if (board.open && activeTab==='global') $('postStatus').textContent='Couldn’t post that score. You can try again.'; }
+  finally { posting=false; button.disabled=false; }
+};
+new ResizeObserver(resize).observe(stage);
+resize(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

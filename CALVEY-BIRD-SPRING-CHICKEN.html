@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CALVEY BIRD: SPRING CHICKEN EDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden;
+            background: #f0fff0; 
+            font-family: 'IBM Plex Mono', monospace;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+
+    #gameCanvas { display: block; width: 100%; height: 100%; }
+    
+    #startScreen {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(180deg, #87ceeb 0%, #c8f7c5 30%, #f0fff0 60%, #fffbe6 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        transition: opacity 0.5s ease-out;
+        overflow: hidden;
+    }
+    
+    #startScreen.fade-out { opacity: 0; pointer-events: none; }
+    #startScreen.hidden { display: none; }
+    
+    #startCanvas {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 1;
+    }
+    
+    .start-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+    }
+    
+    .brand-badge {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.5em;
+        color: #66bb6a;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    
+    .game-title {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 56px;
+        font-weight: 700;
+        color: #2e7d32;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        margin-bottom: 4px;
+        text-shadow: 
+            0 0 30px rgba(102, 187, 106, 0.6),
+            0 0 60px rgba(102, 187, 106, 0.4),
+            0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .game-edition {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #ff9800;
+        letter-spacing: 0.12em;
+        line-height: 1;
+        margin-bottom: 8px;
+        text-shadow: 
+            0 0 20px rgba(255, 152, 0, 0.5),
+            0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .game-subtitle {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.3em;
+        color: #6d8b74;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+    }
+    
+    .tap-prompt {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: #66bb6a;
+        text-transform: uppercase;
+        margin-top: 120px;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.02); }
+    }
+    
+    #hud {
+        position: fixed;
+        top: 70px;
+        left: 0; right: 0;
+        text-align: center;
+        z-index: 50;
+        pointer-events: none;
+    }
+    
+    #hud.hidden { display: none; }
+    
+    .score-label {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.35em;
+        color: rgba(109, 139, 116, 0.8);
+        text-transform: uppercase;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+    
+    .score-value {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 72px;
+        color: #2e7d32;
+        line-height: 1;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 0 20px rgba(255,255,255,0.5);
+    }
+    
+    /* Celebration text */
+    #celebration {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 64px;
+        color: #ff9800;
+        text-shadow: 
+            0 0 20px rgba(255, 152, 0, 0.8),
+            0 0 40px rgba(255, 152, 0, 0.5),
+            2px 2px 4px rgba(0,0,0,0.3);
+        z-index: 60;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+    
+    #celebration.show {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    
+    #gameOver {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(180deg, rgba(200, 247, 197, 0.98) 0%, rgba(240, 255, 240, 0.98) 50%, rgba(255, 251, 230, 0.98) 100%);
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        z-index: 100;
+        overflow-y: auto;
+        padding: 30px 20px;
+        cursor: pointer;
+    }
+    
+    #gameOver.hidden { display: none; }
+    
+    .final-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.35em;
+        color: #6d8b74;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+    
+    .final-score {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 96px;
+        color: #2e7d32;
+        line-height: 1;
+        margin-bottom: 8px;
+        text-shadow: 0 0 30px rgba(102, 187, 106, 0.3);
+    }
+    
+    .final-distance {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.2em;
+        color: #6d8b74;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+    }
+    
+    .quote-container {
+        margin: 24px 0;
+        padding: 0 24px;
+        max-width: 440px;
+    }
+    
+    .quote-text {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 32px;
+        line-height: 1.35;
+        color: #2e7d32;
+        text-align: center;
+    }
+    
+    .leaderboard-section {
+        width: 100%;
+        max-width: 320px;
+        margin: 20px 0;
+    }
+    
+    .leaderboard-header {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        color: #6d8b74;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .leaderboard-status {
+        font-size: 8px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .leaderboard-status.live { 
+        color: #43e97b; 
+        background: rgba(67, 233, 123, 0.15);
+    }
+    .leaderboard-status.loading { 
+        color: #ffd93d; 
+        background: rgba(255, 217, 61, 0.15);
+    }
+    .leaderboard-status.offline { 
+        color: #f5576c; 
+        background: rgba(245, 87, 108, 0.15);
+    }
+    
+    .leaderboard {
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(102, 187, 106, 0.15);
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .leaderboard::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .leaderboard::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.05);
+        border-radius: 3px;
+    }
+    
+    .leaderboard::-webkit-scrollbar-thumb {
+        background: rgba(102, 187, 106, 0.3);
+        border-radius: 3px;
+    }
+    
+    .leaderboard-entry {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(200, 230, 201, 0.5);
+    }
+    
+    .leaderboard-entry:last-child { border-bottom: none; }
+    
+    .leaderboard-entry.highlight {
+        background: linear-gradient(90deg, rgba(102, 187, 106, 0.15) 0%, rgba(165, 214, 167, 0.1) 100%);
+    }
+    
+    .entry-rank {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 20px;
+        width: 30px;
+        text-align: center;
+        color: #6d8b74;
+    }
+    
+    .leaderboard-entry:nth-child(1) .entry-rank { color: #ffd93d; text-shadow: 0 0 10px rgba(255, 217, 61, 0.5); }
+    .leaderboard-entry:nth-child(2) .entry-rank { color: #c0c0c0; }
+    .leaderboard-entry:nth-child(3) .entry-rank { color: #cd7f32; }
+    
+    .entry-medal {
+        width: 22px;
+        height: 22px;
+        margin-right: 8px;
+        font-size: 14px;
+    }
+    
+    .leaderboard-entry:nth-child(1) .entry-medal::after { content: '\1F947'; }
+    .leaderboard-entry:nth-child(2) .entry-medal::after { content: '\1F948'; }
+    .leaderboard-entry:nth-child(3) .entry-medal::after { content: '\1F949'; }
+    
+    .entry-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 600;
+        color: #2e7d32;
+        text-align: left;
+        margin-left: 6px;
+    }
+    
+    .entry-score {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 22px;
+        color: #66bb6a;
+    }
+    
+    .tap-replay {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: #66bb6a;
+        text-transform: uppercase;
+        margin-top: 30px;
+        animation: pulse 2s ease-in-out infinite;
+    }
+</style>
+
+
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+
+<div id="startScreen">
+    <canvas id="startCanvas"></canvas>
+    <div class="start-content">
+        <div class="brand-badge">CALVEY INC.</div>
+        <h1 class="game-title">CALVEY BIRD</h1>
+        <div class="game-edition">SPRING CHICKEN EDITION</div>
+        <p class="game-subtitle">Tap to fly &bull; Avoid obstacles</p>
+        <p class="tap-prompt">Tap anywhere to start</p>
+    </div>
+</div>
+
+<div id="hud" class="hidden">
+    <div class="score-value" id="scoreDisplay">0</div>
+</div>
+
+<div id="celebration"></div>
+
+<div id="gameOver" class="hidden">
+    <div class="final-label">Final Score</div>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="final-distance" id="finalDistance">0 meters</div>
+    
+    <div class="quote-container">
+        <p class="quote-text" id="quoteText">Every chick learns by trying.</p>
+    </div>
+    
+    <div class="leaderboard-section">
+        <div class="leaderboard-header">
+            Global Leaderboard
+            <span class="leaderboard-status" id="leaderboardStatus">loading</span>
+        </div>
+        <div class="leaderboard" id="leaderboard">
+            <div class="leaderboard-entry">
+                <span class="entry-rank">-</span>
+                <span class="entry-medal"></span>
+                <span class="entry-name">Loading...</span>
+                <span class="entry-score">-</span>
+            </div>
+        </div>
+    </div>
+    
+    <p class="tap-replay">Tap anywhere to play again</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+    // Firebase - uses same leaderboard as CALVEY-BIRD-2 for shared competition
+    firebase.initializeApp({
+        apiKey: "AIzaSyCnt1LTYXZVMxo4IGOV8DJgfMUEzdKezPo",
+        authDomain: "calveybird.firebaseapp.com",
+        databaseURL: "https://calveybird-default-rtdb.firebaseio.com",
+        projectId: "calveybird",
+        storageBucket: "calveybird.firebasestorage.app",
+        messagingSenderId: "579044491140",
+        appId: "1:579044491140:web:9b670e0f2ed1d73685a7d1",
+        measurementId: "G-6LRMB35BP5"
+    });
+    var database = firebase.database();
+    
+    // Audio Context for sound effects - iOS compatible
+    var audioCtx = null;
+    var audioUnlocked = false;
+    var audioMuted = false;
+    
+    function checkSilentMode() {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            audioMuted = true;
+            return;
+        }
+        if (audioCtx) {
+            try {
+                var oscillator = audioCtx.createOscillator();
+                var gainNode = audioCtx.createGain();
+                gainNode.gain.value = 0;
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start(0);
+                oscillator.stop(audioCtx.currentTime + 0.001);
+            } catch(e) {}
+        }
+    }
+    
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        try {
+            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!audioCtx) { audioCtx = new AudioContext(); }
+            var buffer = audioCtx.createBuffer(1, 1, 22050);
+            var source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            audioUnlocked = true;
+            checkSilentMode();
+        } catch(e) { audioMuted = true; }
+    }
+    
+    function ensureAudio() {
+        if (audioMuted) return false;
+        if (!audioCtx) {
+            try {
+                var AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            } catch(e) { audioMuted = true; return false; }
+        }
+        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        return audioCtx && audioCtx.state === 'running';
+    }
+    
+    // SPRING CHICKEN SOUNDS
+    function playFlap() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            // Soft wing flutter - like a baby chick flapping tiny wings
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 320;
+            osc.frequency.linearRampToValueAtTime(480, now + 0.03);
+            osc.frequency.linearRampToValueAtTime(280, now + 0.08);
+            gain.gain.value = 0.1;
+            gain.gain.linearRampToValueAtTime(0.06, now + 0.03);
+            gain.gain.linearRampToValueAtTime(0.001, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+            
+            // Feathery flutter
+            var osc2 = audioCtx.createOscillator();
+            var gain2 = audioCtx.createGain();
+            var filter = audioCtx.createBiquadFilter();
+            osc2.connect(filter);
+            filter.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'triangle';
+            filter.type = 'bandpass';
+            filter.frequency.value = 1800;
+            filter.Q.value = 1.2;
+            osc2.frequency.value = 500;
+            osc2.frequency.linearRampToValueAtTime(900, now + 0.04);
+            osc2.frequency.linearRampToValueAtTime(600, now + 0.08);
+            gain2.gain.value = 0.04;
+            gain2.gain.linearRampToValueAtTime(0.001, now + 0.1);
+            osc2.start(now);
+            osc2.stop(now + 0.1);
+            
+            // Baby chick peep accent
+            var osc3 = audioCtx.createOscillator();
+            var gain3 = audioCtx.createGain();
+            osc3.connect(gain3);
+            gain3.connect(audioCtx.destination);
+            osc3.type = 'sine';
+            osc3.frequency.value = 2200;
+            osc3.frequency.linearRampToValueAtTime(2800, now + 0.02);
+            osc3.frequency.linearRampToValueAtTime(2000, now + 0.05);
+            gain3.gain.value = 0.03;
+            gain3.gain.linearRampToValueAtTime(0.001, now + 0.06);
+            osc3.start(now);
+            osc3.stop(now + 0.06);
+        } catch(e) { console.log('Flap error:', e); }
+    }
+    
+    function playFlip() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            // Excited chicken spin
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 600;
+            osc.frequency.linearRampToValueAtTime(1200, now + 0.15);
+            osc.frequency.linearRampToValueAtTime(900, now + 0.3);
+            gain.gain.value = 0.1;
+            gain.gain.linearRampToValueAtTime(0.15, now + 0.15);
+            gain.gain.linearRampToValueAtTime(0.001, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+            
+            var osc2 = audioCtx.createOscillator();
+            var gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'sine';
+            osc2.frequency.value = 1800;
+            osc2.frequency.linearRampToValueAtTime(2200, now + 0.1);
+            gain2.gain.value = 0.06;
+            gain2.gain.linearRampToValueAtTime(0.001, now + 0.2);
+            osc2.start(now + 0.1);
+            osc2.stop(now + 0.3);
+        } catch(e) { console.log('Flip error:', e); }
+    }
+    
+    function playHeart() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            var notes = [659, 784, 988]; // E, G, B - warm chord
+            for (var i = 0; i < notes.length; i++) {
+                (function(index, freq) {
+                    var osc = audioCtx.createOscillator();
+                    var gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.value = 0.001;
+                    gain.gain.linearRampToValueAtTime(0.1, now + index * 0.12 + 0.02);
+                    gain.gain.linearRampToValueAtTime(0.001, now + index * 0.12 + 0.2);
+                    osc.start(now + index * 0.12);
+                    osc.stop(now + index * 0.12 + 0.25);
+                })(i, notes[i]);
+            }
+        } catch(e) { console.log('Heart error:', e); }
+    }
+    
+    function playStars() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            var sparkleFreqs = [1400, 1600, 1800, 2000, 2200, 1700, 1500, 1300];
+            for (var i = 0; i < sparkleFreqs.length; i++) {
+                (function(index, freq) {
+                    var osc = audioCtx.createOscillator();
+                    var gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    osc.frequency.linearRampToValueAtTime(freq * 0.8, now + index * 0.04 + 0.1);
+                    gain.gain.value = 0.001;
+                    gain.gain.linearRampToValueAtTime(0.08, now + index * 0.04 + 0.01);
+                    gain.gain.linearRampToValueAtTime(0.001, now + index * 0.04 + 0.15);
+                    osc.start(now + index * 0.04);
+                    osc.stop(now + index * 0.04 + 0.2);
+                })(i, sparkleFreqs[i]);
+            }
+        } catch(e) { console.log('Stars error:', e); }
+    }
+    
+    function playScore() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            var osc1 = audioCtx.createOscillator();
+            var gain1 = audioCtx.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.type = 'sine';
+            osc1.frequency.value = 523;
+            gain1.gain.value = 0.1;
+            gain1.gain.linearRampToValueAtTime(0.001, now + 0.1);
+            osc1.start(now);
+            osc1.stop(now + 0.1);
+            
+            var osc2 = audioCtx.createOscillator();
+            var gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'sine';
+            osc2.frequency.value = 659;
+            gain2.gain.value = 0.001;
+            gain2.gain.linearRampToValueAtTime(0.1, now + 0.1);
+            gain2.gain.linearRampToValueAtTime(0.001, now + 0.2);
+            osc2.start(now + 0.08);
+            osc2.stop(now + 0.2);
+        } catch(e) { console.log('Score error:', e); }
+    }
+    
+    function playDie() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            // Sad chicken squawk
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sawtooth';
+            osc.frequency.value = 400;
+            osc.frequency.linearRampToValueAtTime(100, now + 0.5);
+            gain.gain.value = 0.08;
+            gain.gain.linearRampToValueAtTime(0.001, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+            
+            // Sad descending peep
+            var osc2 = audioCtx.createOscillator();
+            var gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'sine';
+            osc2.frequency.value = 1800;
+            osc2.frequency.linearRampToValueAtTime(400, now + 0.4);
+            gain2.gain.value = 0.06;
+            gain2.gain.linearRampToValueAtTime(0.001, now + 0.4);
+            osc2.start(now);
+            osc2.stop(now + 0.4);
+        } catch(e) { console.log('Die error:', e); }
+    }
+    
+    function playCelebration() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            // Happy chicken celebration - ascending peeps
+            var notes = [659, 784, 988, 1319];
+            for (var i = 0; i < notes.length; i++) {
+                (function(index, freq) {
+                    var osc = audioCtx.createOscillator();
+                    var gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.value = 0.001;
+                    gain.gain.linearRampToValueAtTime(0.1, now + index * 0.1 + 0.01);
+                    gain.gain.linearRampToValueAtTime(0.001, now + index * 0.1 + 0.12);
+                    osc.start(now + index * 0.1);
+                    osc.stop(now + index * 0.1 + 0.12);
+                })(i, notes[i]);
+            }
+        } catch(e) { console.log('Celebration error:', e); }
+    }
+    
+    // Fart sound
+    function playFart() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            var duration = 0.4;
+
+            // Low frequency oscillator for the main rumble
+            var osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.value = 70 + Math.random() * 30;
+            osc.frequency.linearRampToValueAtTime(35 + Math.random() * 15, now + duration);
+
+            // Filter to make it sound more muffled
+            var filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 180;
+            filter.Q.value = 4;
+
+            // Gain envelope
+            var gain = audioCtx.createGain();
+            gain.gain.value = 0.5;
+            gain.gain.linearRampToValueAtTime(0.35, now + 0.05);
+            gain.gain.linearRampToValueAtTime(0.4, now + 0.15);
+            gain.gain.linearRampToValueAtTime(0.001, now + duration);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + duration);
+
+            // Add a second oscillator for texture
+            var osc2 = audioCtx.createOscillator();
+            osc2.type = 'triangle';
+            osc2.frequency.value = 55 + Math.random() * 25;
+            osc2.frequency.linearRampToValueAtTime(30, now + duration);
+
+            var gain2 = audioCtx.createGain();
+            gain2.gain.value = 0.35;
+            gain2.gain.linearRampToValueAtTime(0.001, now + duration);
+
+            var filter2 = audioCtx.createBiquadFilter();
+            filter2.type = 'lowpass';
+            filter2.frequency.value = 120;
+
+            osc2.connect(filter2);
+            filter2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+
+            osc2.start(now);
+            osc2.stop(now + duration);
+        } catch(e) { console.log('Fart error:', e); }
+    }
+
+    // Baby chick peep - the main chirp sound
+    function playChirp() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            // High-pitched baby chick peep
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 2400 + Math.random() * 400;
+            osc.frequency.linearRampToValueAtTime(3200 + Math.random() * 300, now + 0.06);
+            osc.frequency.linearRampToValueAtTime(2600, now + 0.12);
+            gain.gain.value = 0.06;
+            gain.gain.linearRampToValueAtTime(0.001, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+            
+            // Second peep
+            var osc2 = audioCtx.createOscillator();
+            var gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'sine';
+            osc2.frequency.value = 2600 + Math.random() * 300;
+            osc2.frequency.linearRampToValueAtTime(3000, now + 0.2);
+            gain2.gain.value = 0.001;
+            gain2.gain.linearRampToValueAtTime(0.05, now + 0.18);
+            gain2.gain.linearRampToValueAtTime(0.001, now + 0.28);
+            osc2.start(now + 0.16);
+            osc2.stop(now + 0.3);
+        } catch(e) { console.log('Chirp error:', e); }
+    }
+
+    // Egg laying sound
+    function playEgg() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            // Pop sound for egg
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 600;
+            osc.frequency.linearRampToValueAtTime(200, now + 0.08);
+            gain.gain.value = 0.15;
+            gain.gain.linearRampToValueAtTime(0.001, now + 0.12);
+            osc.start(now);
+            osc.stop(now + 0.12);
+            
+            // Satisfying thunk
+            var osc2 = audioCtx.createOscillator();
+            var gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'triangle';
+            osc2.frequency.value = 150;
+            osc2.frequency.linearRampToValueAtTime(80, now + 0.15);
+            gain2.gain.value = 0.1;
+            gain2.gain.linearRampToValueAtTime(0.001, now + 0.2);
+            osc2.start(now + 0.08);
+            osc2.stop(now + 0.25);
+        } catch(e) { console.log('Egg error:', e); }
+    }
+
+    // Rain/thunder ambient sound
+    function playThunder() {
+        if (!ensureAudio()) return;
+        try {
+            var now = audioCtx.currentTime;
+            // Distant rumble
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            var filter = audioCtx.createBiquadFilter();
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sawtooth';
+            filter.type = 'lowpass';
+            filter.frequency.value = 120;
+            filter.Q.value = 1;
+            osc.frequency.value = 50 + Math.random() * 30;
+            gain.gain.value = 0.001;
+            gain.gain.linearRampToValueAtTime(0.06, now + 0.3);
+            gain.gain.linearRampToValueAtTime(0.03, now + 0.8);
+            gain.gain.linearRampToValueAtTime(0.001, now + 2.0);
+            osc.start(now);
+            osc.stop(now + 2.0);
+        } catch(e) { console.log('Thunder error:', e); }
+    }
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function hexToRgb(hex) {
+        var clean = hex.replace('#', '');
+        var bigint = parseInt(clean, 16);
+        return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+    }
+
+    function mixColor(colorA, colorB, t) {
+        var a = hexToRgb(colorA);
+        var b = hexToRgb(colorB);
+        var r = Math.round(lerp(a.r, b.r, t));
+        var g = Math.round(lerp(a.g, b.g, t));
+        var bVal = Math.round(lerp(a.b, b.b, t));
+        return 'rgb(' + r + ', ' + g + ', ' + bVal + ')';
+    }
+
+    function getDayPhase(time) {
+        return (Math.sin(time * 0.00033333335) + 1) / 2;
+    }
+    
+    // Spring-themed celebration messages
+    var CELEBRATIONS = ['EGG-CELLENT!', 'STINKY!', 'SPRING FLING!', 'AMAZING!', 'BLOOM TIME!', 'INCREDIBLE!', 'PEEP SHOW!', 'PERFECT!', 'WHAT A PLOP!', 'PARP!'];
+    
+    function showCelebration() {
+        var el = document.getElementById('celebration');
+        el.textContent = CELEBRATIONS[Math.floor(Math.random() * CELEBRATIONS.length)];
+        el.classList.add('show');
+        playCelebration();
+        setTimeout(function() { el.classList.remove('show'); }, 1000);
+    }
+    
+    // Player
+    var playerName = localStorage.getItem('calveybird_name') || '';
+    var playerId = localStorage.getItem('calveybird_id');
+    if (!playerId) {
+        playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('calveybird_id', playerId);
+    }
+    
+    if (!playerName) {
+        setTimeout(function() {
+            var name = prompt('Enter your name for the leaderboard:', 'PLAYER');
+            if (name) {
+                playerName = name.toUpperCase().substring(0, 10);
+                localStorage.setItem('calveybird_name', playerName);
+            } else { playerName = 'ANON'; }
+        }, 100);
+    }
+    
+    // Canvas
+    var canvas = document.getElementById('gameCanvas');
+    var ctx = canvas.getContext('2d');
+    var startCanvas = document.getElementById('startCanvas');
+    var startCtx = startCanvas.getContext('2d');
+    
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        startCanvas.width = window.innerWidth;
+        startCanvas.height = window.innerHeight;
+        if (game) game.groundY = canvas.height - 60;
+        if (startStars && startStars.length) {
+            for (var i = 0; i < startStars.length; i++) {
+                startStars[i].x = Math.random() * window.innerWidth;
+                startStars[i].y = Math.random() * window.innerHeight * 0.6;
+            }
+        }
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    
+    // Spring-themed quotes
+    var QUOTES_LOW = [
+        "Every chick learns by trying.",
+        "Spring is a time for new beginnings.",
+        "Even baby birds need practice.",
+        "Little wings grow with patience.",
+        "The meadow always welcomes you back.",
+        "Every journey starts with a tiny peep."
+    ];
+    
+    var QUOTES_MID_LOW = [
+        "If you stumble, spring back up!",
+        "Try again\u2014your feathers are getting fluffier.",
+        "Even learning to fly is an adventure.",
+        "Slow and steady wins the spring.",
+        "Sometimes flying means trusting the breeze."
+    ];
+    
+    var QUOTES_MID = [
+        "Every flap makes flowers bloom.",
+        "Small chicks can soar high.",
+        "Brave chicks try new paths.",
+        "Your wings know what to do.",
+        "Spring is just getting started.",
+        "The garden cheers when you fly."
+    ];
+    
+    var QUOTES_HIGH = [
+        "Flying starts with believing you can.",
+        "The meadow cheers when you try.",
+        "Flying is just joy with feathers.",
+        "The sky is big enough for everyone.",
+        "The flowers bloom when you pass."
+    ];
+    
+    var QUOTES_TOP = [
+        "Ya heard?! Ya spring chicken!!",
+        "Kind hearts make the best wings.",
+        "Flying is better when shared.",
+        "The garden is always waiting.",
+        "Every flight leaves petals behind."
+    ];
+    
+    function getQuoteForScore(score) {
+        var quotes;
+        if (score >= 30) quotes = QUOTES_TOP;
+        else if (score >= 20) quotes = QUOTES_HIGH;
+        else if (score >= 10) quotes = QUOTES_MID;
+        else if (score >= 5) quotes = QUOTES_MID_LOW;
+        else quotes = QUOTES_LOW;
+        return quotes[Math.floor(Math.random() * quotes.length)];
+    }
+    
+    // Spring pastel colors for pipes (flower-garden themed)
+    var STACK_COLORS = [
+        '#ff6b9d', '#c471ed', '#feca57', '#48dbfb', '#1dd1a1', 
+        '#ff9ff3', '#54a0ff', '#5f27cd', '#ff6b6b', '#a29bfe',
+        '#fd79a8', '#00cec9', '#e17055', '#74b9ff', '#ffeaa7'
+    ];
+    
+    // Leaderboard (shared with spring edition entries)
+    var leaderboard = [];
+    var currentHighlightKey = null;
+    
+    function setupLeaderboard() {
+        var status = document.getElementById('leaderboardStatus');
+        if (status) { status.textContent = 'connecting...'; status.className = 'leaderboard-status loading'; }
+        
+        database.ref('leaderboard').orderByChild('score').on('value', function(snapshot) {
+            var allScores = [];
+            snapshot.forEach(function(child) {
+                allScores.push(Object.assign({}, child.val(), { key: child.key }));
+            });
+            var bestScores = {};
+            allScores.forEach(function(entry) {
+                var name = (entry.name || 'ANON').toUpperCase();
+                if (!bestScores[name] || entry.score > bestScores[name].score) {
+                    bestScores[name] = entry;
+                }
+            });
+            leaderboard = Object.values(bestScores);
+            leaderboard.sort(function(a, b) { return b.score - a.score; });
+            if (status) { status.textContent = 'live'; status.className = 'leaderboard-status live'; }
+            renderLeaderboard();
+        }, function(error) {
+            console.error('Leaderboard error:', error);
+            if (status) { status.textContent = 'offline'; status.className = 'leaderboard-status offline'; }
+        });
+    }
+    
+    setupLeaderboard();
+    
+    function renderLeaderboard() {
+        var container = document.getElementById('leaderboard');
+        if (!container) return;
+        if (leaderboard.length === 0) {
+            container.innerHTML = '<div class="leaderboard-entry"><span class="entry-rank">-</span><span class="entry-medal"></span><span class="entry-name">No scores yet</span><span class="entry-score">-</span></div>';
+            return;
+        }
+        var html = '';
+        var count = Math.min(50, leaderboard.length);
+        for (var i = 0; i < count; i++) {
+            var entry = leaderboard[i];
+            var isHighlight = entry.key === currentHighlightKey || (playerName && entry.name === playerName);
+            html += '<div class="leaderboard-entry ' + (isHighlight ? 'highlight' : '') + '">';
+            html += '<span class="entry-rank">' + (i + 1) + '</span>';
+            html += '<span class="entry-medal"></span>';
+            html += '<span class="entry-name">' + (entry.name || 'ANON') + '</span>';
+            html += '<span class="entry-score">' + entry.score + '</span>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+    
+    function submitScore(score, distance) {
+        if (!playerName) {
+            playerName = prompt('Enter your name:', 'PLAYER') || 'ANON';
+            playerName = playerName.toUpperCase().substring(0, 10);
+            localStorage.setItem('calveybird_name', playerName);
+        }
+        var entry = {
+            name: playerName,
+            score: score,
+            distance: distance,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            playerId: playerId
+        };
+        var newRef = database.ref('leaderboard').push();
+        currentHighlightKey = newRef.key;
+        newRef.set(entry);
+    }
+    
+    // Start screen elements
+    var startClouds = [];
+    for (var i = 0; i < 12; i++) {
+        startClouds.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight * 0.5,
+            size: 30 + Math.random() * 50,
+            speed: 0.2 + Math.random() * 0.5,
+            opacity: 0.4 + Math.random() * 0.4
+        });
+    }
+
+    var startStars = [];
+    for (var i = 0; i < 80; i++) {
+        startStars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight * 0.6,
+            size: Math.random() * 1.6 + 0.4,
+            twinkle: Math.random() * Math.PI * 2
+        });
+    }
+
+    // Start screen flowers
+    var startFlowers = [];
+    for (var i = 0; i < 20; i++) {
+        startFlowers.push({
+            x: Math.random() * window.innerWidth,
+            y: window.innerHeight * 0.75 + Math.random() * window.innerHeight * 0.15,
+            size: 6 + Math.random() * 10,
+            color: ['#ff6b9d', '#feca57', '#c471ed', '#ff9ff3', '#54a0ff', '#1dd1a1'][Math.floor(Math.random() * 6)],
+            petals: 4 + Math.floor(Math.random() * 3),
+            sway: Math.random() * Math.PI * 2
+        });
+    }
+    
+    var startBird = { x: 0, y: 0, angle: 0, wingPhase: 0, time: 2356 };
+    
+    function renderStartScreen() {
+        if (document.getElementById('startScreen').classList.contains('hidden')) return;
+        
+        var w = startCanvas.width, h = startCanvas.height;
+        startCtx.clearRect(0, 0, w, h);
+
+        var dayPhase = getDayPhase(startBird.time);
+        var sunAlpha = Math.max(0, Math.min(1, (dayPhase - 0.35) / 0.65));
+        var nightMix = Math.pow(Math.max(0, (0.35 - dayPhase) / 0.35), 1.4);
+        var sunset = Math.max(0, 1 - Math.abs(dayPhase - 0.5) * 2);
+
+        // Spring sky - lighter, warmer
+        var startSky = startCtx.createLinearGradient(0, 0, 0, h);
+        startSky.addColorStop(0, mixColor('#87ceeb', '#0b1026', nightMix));
+        startSky.addColorStop(0.5, mixColor('#c8f7c5', '#1a2750', nightMix));
+        startSky.addColorStop(1, mixColor('#fffbe6', '#2f4d6f', nightMix));
+        startCtx.fillStyle = startSky;
+        startCtx.fillRect(0, 0, w, h);
+
+        if (sunset > 0.01) {
+            var dusk = startCtx.createLinearGradient(0, h * 0.2, 0, h * 0.8);
+            dusk.addColorStop(0, 'rgba(255, 200, 150,' + (0.15 * sunset) + ')');
+            dusk.addColorStop(0.6, 'rgba(255, 150, 200,' + (0.12 * sunset) + ')');
+            dusk.addColorStop(1, 'rgba(150, 100, 180,' + (0.08 * sunset) + ')');
+            startCtx.fillStyle = dusk;
+            startCtx.fillRect(0, 0, w, h);
+        }
+
+        // Stars
+        if (nightMix > 0.05) {
+            startCtx.save();
+            startCtx.globalAlpha = 0.7 * nightMix;
+            startCtx.fillStyle = '#ffffff';
+            for (var s = 0; s < startStars.length; s++) {
+                var star = startStars[s];
+                star.twinkle += 0.02;
+                var twinkle = 0.6 + Math.sin(star.twinkle) * 0.4;
+                startCtx.globalAlpha = twinkle * nightMix;
+                startCtx.beginPath();
+                startCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                startCtx.fill();
+            }
+            startCtx.restore();
+        }
+
+        // Sun and moon
+        var sunX = w * (0.1 + dayPhase * 0.8);
+        var sunY = h * (0.2 + Math.sin(dayPhase * Math.PI) * -0.12);
+        startCtx.save();
+        startCtx.globalAlpha = 0.9 * sunAlpha;
+        startCtx.fillStyle = '#ffe59a';
+        startCtx.beginPath();
+        startCtx.arc(sunX, sunY, 45, 0, Math.PI * 2);
+        startCtx.fill();
+        startCtx.restore();
+
+        var moonPhase = (dayPhase + 0.5) % 1;
+        var moonX = w * (0.1 + moonPhase * 0.8);
+        var moonY = h * (0.25 + Math.sin(moonPhase * Math.PI) * -0.12);
+        startCtx.save();
+        startCtx.globalAlpha = 0.85 * nightMix;
+        startCtx.fillStyle = '#dfe7ff';
+        startCtx.beginPath();
+        startCtx.arc(moonX, moonY, 32, 0, Math.PI * 2);
+        startCtx.fill();
+        startCtx.fillStyle = 'rgba(190, 200, 230, 0.6)';
+        startCtx.beginPath();
+        startCtx.arc(moonX - 10, moonY - 6, 6, 0, Math.PI * 2);
+        startCtx.arc(moonX + 8, moonY + 10, 4, 0, Math.PI * 2);
+        startCtx.fill();
+        startCtx.restore();
+        
+        // Clouds
+        for (var i = 0; i < startClouds.length; i++) {
+            var c = startClouds[i];
+            c.x += c.speed;
+            if (c.x > w + c.size * 2) { c.x = -c.size * 2; c.y = Math.random() * h * 0.5; }
+            startCtx.globalAlpha = c.opacity;
+            startCtx.fillStyle = mixColor('#ffffff', '#b0c4de', nightMix * 0.8);
+            startCtx.beginPath();
+            startCtx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+            startCtx.arc(c.x + c.size * 0.6, c.y - c.size * 0.2, c.size * 0.7, 0, Math.PI * 2);
+            startCtx.arc(c.x + c.size * 1.2, c.y, c.size * 0.8, 0, Math.PI * 2);
+            startCtx.fill();
+        }
+        startCtx.globalAlpha = 1;
+
+        // Ground with grass
+        var groundY = h * 0.78;
+        var grassGrad = startCtx.createLinearGradient(0, groundY, 0, h);
+        grassGrad.addColorStop(0, '#66bb6a');
+        grassGrad.addColorStop(0.3, '#4caf50');
+        grassGrad.addColorStop(1, '#388e3c');
+        startCtx.fillStyle = grassGrad;
+        startCtx.fillRect(0, groundY, w, h - groundY);
+
+        // Start screen flowers
+        for (var i = 0; i < startFlowers.length; i++) {
+            var fl = startFlowers[i];
+            fl.sway += 0.02;
+            drawFlower(startCtx, fl.x, fl.y + Math.sin(fl.sway) * 2, fl.size, fl.color, fl.petals);
+        }
+        
+        // Bird (spring chicken)
+        startBird.time++;
+        startBird.x = w / 2 + Math.sin(startBird.time * 0.02) * 30;
+        startBird.y = h / 2 + 10 + Math.sin(startBird.time * 0.03) * 20;
+        startBird.angle = Math.sin(startBird.time * 0.025) * 0.15;
+        startBird.wingPhase += 0.15;
+        
+        renderChickAt(startCtx, startBird.x, startBird.y, startBird.angle, startBird.wingPhase, 0, 30);
+        
+        requestAnimationFrame(renderStartScreen);
+    }
+    
+    renderStartScreen();
+
+    // Draw a simple flower
+    function drawFlower(c, x, y, size, color, petals) {
+        // Stem
+        c.strokeStyle = '#4caf50';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(x, y);
+        c.lineTo(x, y + size * 2);
+        c.stroke();
+        
+        // Leaf
+        c.fillStyle = '#66bb6a';
+        c.beginPath();
+        c.ellipse(x + size * 0.4, y + size * 1.2, size * 0.5, size * 0.2, 0.3, 0, Math.PI * 2);
+        c.fill();
+        
+        // Petals
+        c.fillStyle = color;
+        for (var i = 0; i < petals; i++) {
+            c.save();
+            c.translate(x, y);
+            c.rotate((i / petals) * Math.PI * 2);
+            c.beginPath();
+            c.ellipse(0, -size * 0.5, size * 0.35, size * 0.55, 0, 0, Math.PI * 2);
+            c.fill();
+            c.restore();
+        }
+        
+        // Center
+        c.fillStyle = '#ffd93d';
+        c.beginPath();
+        c.arc(x, y, size * 0.3, 0, Math.PI * 2);
+        c.fill();
+    }
+    
+    // SPRING CHICKEN CHARACTER (unified for start screen + gameplay)
+    function renderChickAt(c, x, y, rotation, wingPhase, flapAnim, radius, isBlinking, flipRotation) {
+        c.save();
+        c.translate(x, y);
+        c.rotate(rotation);
+
+        if (flipRotation) c.rotate(flipRotation);
+
+        var r = radius;
+        var wingAngle = Math.sin(wingPhase) * 0.5 + flapAnim * 0.6;
+
+        // Tiny wings (chick has small wings!)
+        c.save();
+        c.translate(-r * 0.7, 0);
+        c.rotate(wingAngle - 0.2);
+        drawChickWing(c, r);
+        c.restore();
+
+        c.save();
+        c.translate(-r * 0.5, r * 0.4);
+        c.rotate(-wingAngle + 0.2);
+        c.scale(1, -1);
+        drawChickWing(c, r * 0.85);
+        c.restore();
+
+        // Body - fluffy yellow!
+        var bodyGrad = c.createRadialGradient(-r * 0.15, -r * 0.15, 0, 0, 0, r);
+        bodyGrad.addColorStop(0, '#fff9c4');
+        bodyGrad.addColorStop(0.4, '#ffee58');
+        bodyGrad.addColorStop(0.7, '#fdd835');
+        bodyGrad.addColorStop(1, '#f9a825');
+        c.fillStyle = bodyGrad;
+        c.beginPath();
+        c.arc(0, 0, r, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = '#f9a825';
+        c.lineWidth = 1.5;
+        c.stroke();
+
+        // Rosy cheeks
+        c.fillStyle = 'rgba(255, 138, 101, 0.35)';
+        c.beginPath();
+        c.ellipse(-r * 0.45, r * 0.2, r * 0.2, r * 0.13, 0, 0, Math.PI * 2);
+        c.fill();
+        c.beginPath();
+        c.ellipse(r * 0.45, r * 0.2, r * 0.2, r * 0.13, 0, 0, Math.PI * 2);
+        c.fill();
+
+        // Eyes - big cute chick eyes
+        drawChickEye(c, -r * 0.28, -r * 0.15, r * 0.32, isBlinking || false);
+        drawChickEye(c, r * 0.28, -r * 0.15, r * 0.32, isBlinking || false);
+
+        // Beak - small orange chick beak
+        c.save();
+        c.translate(r * 0.78, r * 0.05);
+        var beakGrad = c.createLinearGradient(0, -5, 14, 0);
+        beakGrad.addColorStop(0, '#ff8a65');
+        beakGrad.addColorStop(1, '#e65100');
+        c.fillStyle = beakGrad;
+        c.beginPath();
+        c.moveTo(0, -4);
+        c.quadraticCurveTo(14, 0, 0, 4);
+        c.closePath();
+        c.fill();
+        c.restore();
+
+        // Tiny comb on top (baby chicken has a little nub)
+        c.save();
+        c.translate(0, -r * 0.88);
+        c.fillStyle = '#ef5350';
+        // Three small bumps
+        c.beginPath();
+        c.arc(-4, -4, 4, 0, Math.PI * 2);
+        c.arc(0, -7, 4.5, 0, Math.PI * 2);
+        c.arc(4, -4, 4, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+
+        // Tiny tail feathers
+        c.save();
+        c.translate(-r * 0.85, -r * 0.1);
+        c.fillStyle = '#fdd835';
+        c.beginPath();
+        c.moveTo(0, 0);
+        c.quadraticCurveTo(-8, -6, -5, -12);
+        c.quadraticCurveTo(-2, -6, 0, 0);
+        c.fill();
+        c.beginPath();
+        c.moveTo(0, 3);
+        c.quadraticCurveTo(-10, 0, -7, -5);
+        c.quadraticCurveTo(-3, -1, 0, 3);
+        c.fill();
+        c.restore();
+
+        c.restore();
+    }
+    
+    function drawChickWing(c, r) {
+        c.save();
+        c.translate(-r * 0.2, 0);
+        var wingGrad = c.createLinearGradient(0, 0, -r * 0.6, 0);
+        wingGrad.addColorStop(0, '#fff9c4');
+        wingGrad.addColorStop(0.5, '#ffee58');
+        wingGrad.addColorStop(1, '#fdd835');
+        c.fillStyle = wingGrad;
+        c.beginPath();
+        c.ellipse(-r * 0.25, 0, r * 0.4, r * 0.2, 0, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = '#f9a825';
+        c.lineWidth = 1;
+        c.stroke();
+        c.restore();
+    }
+    
+    function drawChickEye(c, ex, ey, er, isBlinking) {
+        if (isBlinking) {
+            c.strokeStyle = '#3e2723';
+            c.lineWidth = 2.5;
+            c.lineCap = 'round';
+            c.beginPath();
+            c.arc(ex, ey, er * 0.5, Math.PI * 0.1, Math.PI * 0.9);
+            c.stroke();
+            return;
+        }
+        
+        c.fillStyle = '#ffffff';
+        c.beginPath();
+        c.arc(ex, ey, er, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = '#d7ccc8';
+        c.lineWidth = 1.5;
+        c.stroke();
+        
+        // Brown iris (chicken eyes)
+        var irisGrad = c.createRadialGradient(ex, ey - er * 0.1, 0, ex, ey, er * 0.7);
+        irisGrad.addColorStop(0, '#6d4c41');
+        irisGrad.addColorStop(0.5, '#4e342e');
+        irisGrad.addColorStop(1, '#3e2723');
+        c.fillStyle = irisGrad;
+        c.beginPath();
+        c.arc(ex, ey, er * 0.7, 0, Math.PI * 2);
+        c.fill();
+        
+        c.fillStyle = '#1b0000';
+        c.beginPath();
+        c.arc(ex, ey + er * 0.05, er * 0.35, 0, Math.PI * 2);
+        c.fill();
+        
+        // Sparkle highlights
+        c.fillStyle = '#ffffff';
+        c.beginPath();
+        c.arc(ex - er * 0.25, ey - er * 0.25, er * 0.25, 0, Math.PI * 2);
+        c.fill();
+        c.beginPath();
+        c.arc(ex + er * 0.2, ey + er * 0.15, er * 0.1, 0, Math.PI * 2);
+        c.fill();
+    }
+    
+    // GAME - Device independent timing
+    var lastFrameTime = 0;
+    var targetFPS = 60;
+    var frameInterval = 1000 / targetFPS;
+    
+    var game = {
+        state: 'menu',
+        bird: { x: 0, y: 0, vy: 0, radius: 22, rotation: 0, wingPhase: 0, flapAnim: 0, blink: 0 },
+        pipes: [],
+        particles: [],
+        featherParticles: [],
+        fartParticles: [],
+        poops: [],
+        clouds: [],
+        hillsBack: [],
+        hillsMid: [],
+        hillsFront: [],
+        eggs: [],
+        hearts: [],
+        stars: [],
+        chirps: [],
+        sparkles: [],
+        backgroundStars: [],
+        butterflies: [],
+        flowers: [],
+        raindrops: [],
+        rainClouds: [],
+        petals: [],
+        score: 0,
+        distance: 0,
+        pipesPassed: 0,
+        groundY: 0,
+        ceilingY: 60,
+        time: 0,
+        pipeColorIndex: 0,
+        lastFartTime: 0,
+        lastPoopTime: 0,
+        lastEggTime: 0,
+        lastFlipTime: 0,
+        lastHeartTime: 0,
+        lastStarsTime: 0,
+        lastChirpTime: 0,
+        lastThunderTime: 0,
+        isRaining: false,
+        rainTimer: 0,
+        rainIntensity: 0,
+        deltaTime: 1,
+        screenScale: 1,
+        
+        init: function() {
+            this.groundY = canvas.height - 60;
+            this.ceilingY = 60;
+            
+            var baseWidth = 375;
+            var baseHeight = 667;
+            this.screenScale = Math.min(canvas.width / baseWidth, canvas.height / baseHeight);
+            this.screenScale = Math.max(0.8, Math.min(1.5, this.screenScale));
+            this.bird.radius = Math.round(22 * this.screenScale);
+            
+            this.bird.x = canvas.width * 0.25;
+            this.bird.y = canvas.height / 2;
+            this.bird.vy = 0;
+            this.bird.rotation = 0;
+            this.bird.wingPhase = 0;
+            this.bird.flapAnim = 0;
+            this.pipes = [];
+            this.particles = [];
+            this.featherParticles = [];
+            this.fartParticles = [];
+            this.poops = [];
+            this.score = 0;
+            this.distance = 0;
+            this.pipesPassed = 0;
+            this.pipeColorIndex = 0;
+            this.lastFartTime = 0;
+            this.lastPoopTime = 0;
+            this.lastEggTime = 0;
+            this.lastFlipTime = 0;
+            this.lastHeartTime = 0;
+            this.lastStarsTime = 0;
+            this.lastChirpTime = 0;
+            this.lastThunderTime = 0;
+            this.eggs = [];
+            this.hearts = [];
+            this.stars = [];
+            this.chirps = [];
+            this.sparkles = [];
+            this.backgroundStars = [];
+            this.butterflies = [];
+            this.flowers = [];
+            this.raindrops = [];
+            this.rainClouds = [];
+            this.petals = [];
+            this.isRaining = false;
+            this.rainTimer = 0;
+            this.rainIntensity = 0;
+            this.bird.flipping = false;
+            this.bird.flipProgress = 0;
+            this.bird.flipRotation = 0;
+            document.getElementById('scoreDisplay').textContent = '0';
+            
+            // Clouds
+            this.clouds = [];
+            for (var i = 0; i < 8; i++) {
+                this.clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: 80 + Math.random() * (canvas.height * 0.3),
+                    size: 40 + Math.random() * 60,
+                    speed: 0.3 + Math.random() * 0.5,
+                    opacity: 0.5 + Math.random() * 0.3,
+                    wobble: Math.random() * Math.PI * 2
+                });
+            }
+
+            // Background stars for night
+            for (var i = 0; i < 140; i++) {
+                this.backgroundStars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.7,
+                    size: Math.random() * 1.8 + 0.4,
+                    twinkle: Math.random() * Math.PI * 2
+                });
+            }
+
+            // Butterflies instead of fireflies
+            for (var i = 0; i < 15; i++) {
+                this.butterflies.push({
+                    x: Math.random() * canvas.width,
+                    y: this.groundY - 60 - Math.random() * 200,
+                    vx: (Math.random() - 0.5) * 0.6,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    wingPhase: Math.random() * Math.PI * 2,
+                    color: ['#ff6b9d', '#c471ed', '#feca57', '#54a0ff', '#ff9ff3'][Math.floor(Math.random() * 5)],
+                    size: 4 + Math.random() * 4
+                });
+            }
+
+            // Ground flowers
+            this.flowers = [];
+            var flowerX = 10;
+            while (flowerX < canvas.width + 200) {
+                if (Math.random() < 0.4) {
+                    this.flowers.push({
+                        x: flowerX,
+                        size: 4 + Math.random() * 6,
+                        color: ['#ff6b9d', '#feca57', '#c471ed', '#ff9ff3', '#54a0ff', '#1dd1a1', '#ff6b6b'][Math.floor(Math.random() * 7)],
+                        petals: 4 + Math.floor(Math.random() * 3),
+                        sway: Math.random() * Math.PI * 2
+                    });
+                }
+                flowerX += 15 + Math.random() * 25;
+            }
+
+            // Rain clouds (dark, will appear during showers)
+            for (var i = 0; i < 4; i++) {
+                this.rainClouds.push({
+                    x: -200 + Math.random() * (canvas.width + 400),
+                    y: 70 + Math.random() * 60,
+                    size: 60 + Math.random() * 40,
+                    speed: 0.4 + Math.random() * 0.3
+                });
+            }
+            
+            // Hills - three layers for depth (spring green)
+            this.hillsBack = [];
+            this.hillsMid = [];
+            this.hillsFront = [];
+            
+            var hillX = -100;
+            while (hillX < canvas.width + 400) {
+                this.hillsBack.push({ x: hillX, height: 100 + Math.random() * 80, width: 250 + Math.random() * 300 });
+                hillX += 180 + Math.random() * 120;
+            }
+            
+            hillX = -50;
+            while (hillX < canvas.width + 400) {
+                this.hillsMid.push({ x: hillX, height: 60 + Math.random() * 50, width: 180 + Math.random() * 200 });
+                hillX += 120 + Math.random() * 100;
+            }
+            
+            hillX = 0;
+            while (hillX < canvas.width + 400) {
+                this.hillsFront.push({ x: hillX, height: 30 + Math.random() * 40, width: 120 + Math.random() * 150 });
+                hillX += 80 + Math.random() * 80;
+            }
+        },
+        
+        getGapSize: function() {
+            var roll = Math.random();
+            if (roll < 0.25) return 115 + Math.random() * 25;
+            else if (roll < 0.6) return 140 + Math.random() * 30;
+            else return 160 + Math.random() * 40;
+        },
+        
+        spawnPipe: function(x) {
+            var gap = this.getGapSize();
+            var minY = this.ceilingY + gap/2 + 60;
+            var maxY = this.groundY - gap/2 - 60;
+            var gapY = minY + Math.random() * (maxY - minY);
+            var color = STACK_COLORS[this.pipeColorIndex % STACK_COLORS.length];
+            this.pipeColorIndex++;
+            this.pipes.push({ x: x, gapY: gapY, gap: gap, width: 80, passed: false, color: color, glow: Math.random() * Math.PI * 2 });
+        },
+        
+        startGame: function() {
+            this.init();
+            this.state = 'ready';
+            this.spawnPipe(canvas.width + 300);
+            this.spawnPipe(canvas.width + 600);
+            document.getElementById('hud').classList.remove('hidden');
+        },
+        
+        flap: function() {
+            unlockAudio();
+            
+            if (this.state === 'menu') {
+                document.getElementById('startScreen').classList.add('fade-out');
+                var self = this;
+                setTimeout(function() {
+                    document.getElementById('startScreen').classList.add('hidden');
+                    self.startGame();
+                }, 500);
+                return;
+            }
+            
+            if (this.state === 'dead') {
+                document.getElementById('gameOver').classList.add('hidden');
+                this.startGame();
+                return;
+            }
+            
+            if (this.state === 'ready') this.state = 'playing';
+            
+            if (this.state === 'playing' || this.state === 'ready') {
+                this.bird.vy = -6.75;
+                this.bird.flapAnim = 1;
+                playFlap();
+                
+                // Yellow feather particles
+                for (var i = 0; i < 6; i++) {
+                    this.particles.push({
+                        x: this.bird.x - 15,
+                        y: this.bird.y + (Math.random() - 0.5) * 20,
+                        vx: -Math.random() * 4 - 2,
+                        vy: (Math.random() - 0.5) * 3,
+                        life: 1,
+                        size: Math.random() * 4 + 2,
+                        color: '#fdd835'
+                    });
+                }
+
+                // Occasional peep
+                if (Math.random() < 0.01) {
+                    this.spawnChirp(this.bird.x + this.bird.radius * 0.6, this.bird.y - this.bird.radius * 0.8);
+                    playChirp();
+                }
+
+                // Occasional fart particles
+                if (this.score >= 20 && Math.random() < 0.06) {
+                    for (var j = 0; j < 3; j++) {
+                        this.fartParticles.push({
+                            x: this.bird.x - this.bird.radius,
+                            y: this.bird.y + 8,
+                            vx: -Math.random() * 2 - 0.5,
+                            vy: (Math.random() - 0.5) * 1.5,
+                            life: 0.8,
+                            size: 5 + Math.random() * 6,
+                            color: 'rgba(140, 200, 120, 0.45)'
+                        });
+                    }
+                }
+            }
+        },
+        
+        maybeFart: function() {
+            if (this.score < 20) return;
+            if (this.time - this.lastFartTime > 1200 && Math.random() < 0.001) {
+                this.lastFartTime = this.time;
+                playFart();
+                // Green fart cloud
+                for (var i = 0; i < 8; i++) {
+                    this.fartParticles.push({
+                        x: this.bird.x - this.bird.radius,
+                        y: this.bird.y + 5,
+                        vx: -Math.random() * 3 - 1,
+                        vy: (Math.random() - 0.5) * 2,
+                        life: 1,
+                        size: 8 + Math.random() * 10,
+                        color: 'rgba(120, 180, 80, 0.6)'
+                    });
+                }
+            }
+        },
+
+        maybePoop: function() {
+            if (this.score < 30) return;
+            if (this.time - this.lastPoopTime > 450 && Math.random() < 0.003) {
+                this.lastPoopTime = this.time;
+                this.poops.push({
+                    x: this.bird.x,
+                    y: this.bird.y + this.bird.radius,
+                    vy: 2,
+                    landed: false,
+                    landedY: 0,
+                    size: 6 + Math.random() * 4,
+                    splatted: false,
+                    splatSize: 0
+                });
+            }
+        },
+        
+        maybeEgg: function() {
+            if (this.score < 10) return;
+            if (this.time - this.lastEggTime > 450 && Math.random() < 0.003) {
+                this.lastEggTime = this.time;
+                playEgg();
+                this.eggs.push({
+                    x: this.bird.x,
+                    y: this.bird.y + this.bird.radius,
+                    vy: 2,
+                    landed: false,
+                    landedY: 0,
+                    size: 6 + Math.random() * 4,
+                    cracked: false,
+                    crackSize: 0
+                });
+            }
+        },
+        
+        maybeFlip: function() {
+            if (this.score < 25) return;
+            if (this.bird.flipping) return;
+            if (this.time - this.lastFlipTime > 800 && Math.random() < 0.003) {
+                this.lastFlipTime = this.time;
+                this.bird.flipping = true;
+                this.bird.flipProgress = 0;
+                playFlip();
+                if (Math.random() < 0.6) {
+                    this.hearts.push({
+                        x: this.bird.x,
+                        y: this.bird.y - this.bird.radius,
+                        vy: -2,
+                        life: 1,
+                        size: 14,
+                        wobble: 0
+                    });
+                    playHeart();
+                }
+            }
+        },
+        
+        maybeHeart: function() {
+            if (this.score < 35) return;
+            if (this.time - this.lastHeartTime > 900 && Math.random() < 0.003) {
+                this.lastHeartTime = this.time;
+                this.hearts.push({
+                    x: this.bird.x,
+                    y: this.bird.y - this.bird.radius,
+                    vy: -2,
+                    life: 1,
+                    size: 15,
+                    wobble: 0
+                });
+                playHeart();
+            }
+        },
+        
+        maybeStars: function() {
+            if (this.score < 45) return;
+            if (this.time - this.lastStarsTime > 1200 && Math.random() < 0.003) {
+                this.lastStarsTime = this.time;
+                for (var i = 0; i < 12; i++) {
+                    var angle = (i / 12) * Math.PI * 2;
+                    var speed = 3 + Math.random() * 3;
+                    this.stars.push({
+                        x: this.bird.x,
+                        y: this.bird.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        life: 1,
+                        size: 4 + Math.random() * 4,
+                        rotation: Math.random() * Math.PI * 2,
+                        rotationSpeed: (Math.random() - 0.5) * 0.3
+                    });
+                }
+                playStars();
+            }
+        },
+
+        maybeChirp: function() {
+            if (this.score < 5) return;
+            if (this.time - this.lastChirpTime > 220 && Math.random() < 0.001) {
+                this.lastChirpTime = this.time;
+                this.spawnChirp(this.bird.x + this.bird.radius * 0.6, this.bird.y - this.bird.radius * 0.8);
+                playChirp();
+            }
+        },
+
+        // Spring rain showers
+        maybeRain: function() {
+            this.rainTimer++;
+            // Start rain randomly every ~30 seconds
+            if (!this.isRaining && this.rainTimer > 1800 && Math.random() < 0.0005) {
+                this.isRaining = true;
+                this.rainTimer = 0;
+                this.rainIntensity = 0;
+            }
+            // Rain lasts 8-15 seconds
+            if (this.isRaining) {
+                this.rainIntensity = Math.min(1, this.rainIntensity + 0.005);
+                if (this.rainTimer > 480 + Math.random() * 420) {
+                    this.rainIntensity -= 0.008;
+                    if (this.rainIntensity <= 0) {
+                        this.isRaining = false;
+                        this.rainIntensity = 0;
+                        this.rainTimer = 0;
+                    }
+                }
+                // Spawn raindrops
+                var dropCount = Math.floor(this.rainIntensity * 4);
+                for (var i = 0; i < dropCount; i++) {
+                    this.raindrops.push({
+                        x: Math.random() * canvas.width,
+                        y: this.ceilingY,
+                        vy: 8 + Math.random() * 6,
+                        vx: -1 - Math.random() * 2,
+                        life: 1,
+                        size: 1 + Math.random() * 2
+                    });
+                }
+                // Occasional thunder
+                if (this.rainIntensity > 0.7 && this.time - this.lastThunderTime > 600 && Math.random() < 0.002) {
+                    this.lastThunderTime = this.time;
+                    playThunder();
+                }
+            }
+        },
+
+        // Spawn flower petals blown by wind
+        maybePetal: function() {
+            if (Math.random() < 0.015) {
+                var colors = ['#ffb7c5', '#ffc4d6', '#ff9ec6', '#ffe0eb', '#ffd6e7'];
+                this.petals.push({
+                    x: canvas.width + 10,
+                    y: this.ceilingY + Math.random() * (this.groundY - this.ceilingY),
+                    vx: -1.5 - Math.random() * 2,
+                    vy: Math.random() * 2 - 1,
+                    rotation: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.15,
+                    size: 3 + Math.random() * 4,
+                    life: 1,
+                    wobble: Math.random() * Math.PI * 2,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        },
+
+        spawnChirp: function(x, y) {
+            this.chirps.push({
+                x: x, y: y,
+                vy: -1.2 - Math.random(),
+                life: 1,
+                wobble: Math.random() * Math.PI * 2,
+                scale: 0.9 + Math.random() * 0.4
+            });
+        },
+
+        spawnSparkle: function(x, y, color) {
+            this.sparkles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                life: 1,
+                size: 3 + Math.random() * 3,
+                rotation: Math.random() * Math.PI * 2,
+                color: color || '#ffeaa7'
+            });
+        },
+
+        getSpeed: function() {
+            var baseSpeed = 3.5;
+            var speedIncrease = Math.floor(this.pipesPassed / 10) * 0.15;
+            return Math.min(baseSpeed + speedIncrease, 6.5);
+        },
+        
+        die: function() {
+            this.state = 'dead';
+            playDie();
+            submitScore(this.score, Math.floor(this.distance));
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('finalScore').textContent = this.score;
+            document.getElementById('finalDistance').textContent = Math.floor(this.distance) + ' meters';
+            var quote = getQuoteForScore(this.score);
+            document.getElementById('quoteText').textContent = '"' + quote + '"';
+            document.getElementById('gameOver').classList.remove('hidden');
+        },
+        
+        update: function() {
+            this.time++;
+            
+            // Particles
+            this.particles = this.particles.filter(function(p) {
+                p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life -= 0.025;
+                return p.life > 0;
+            });
+            
+            // Feather particles
+            this.featherParticles = this.featherParticles.filter(function(p) {
+                p.x += p.vx; p.y += p.vy; p.size *= 1.01; p.life -= 0.015;
+                return p.life > 0;
+            });
+
+            // Fart particles
+            this.fartParticles = this.fartParticles.filter(function(p) {
+                p.x += p.vx; p.y += p.vy; p.size *= 1.02; p.life -= 0.015;
+                return p.life > 0;
+            });
+            
+            // Clouds wobble
+            for (var i = 0; i < this.clouds.length; i++) {
+                this.clouds[i].wobble += 0.02;
+                this.clouds[i].y += Math.sin(this.clouds[i].wobble) * 0.15;
+            }
+
+            // Background stars twinkle
+            for (var i = 0; i < this.backgroundStars.length; i++) {
+                this.backgroundStars[i].twinkle += 0.02;
+            }
+
+            // Butterflies flutter
+            for (var i = 0; i < this.butterflies.length; i++) {
+                var b = this.butterflies[i];
+                b.x += b.vx * this.deltaTime;
+                b.y += b.vy * this.deltaTime;
+                b.wingPhase += 0.15 * this.deltaTime;
+                // Random direction changes
+                if (Math.random() < 0.01) {
+                    b.vx = (Math.random() - 0.5) * 0.6;
+                    b.vy = (Math.random() - 0.5) * 0.4;
+                }
+                if (b.x < -20) b.x = canvas.width + 20;
+                if (b.x > canvas.width + 20) b.x = -20;
+                if (b.y < this.ceilingY + 20) b.vy = Math.abs(b.vy);
+                if (b.y > this.groundY - 20) b.vy = -Math.abs(b.vy);
+            }
+
+            // Update raindrops
+            this.raindrops = this.raindrops.filter(function(r) {
+                r.x += r.vx;
+                r.y += r.vy;
+                return r.y < game.groundY;
+            });
+
+            // Update petals
+            for (var i = 0; i < this.petals.length; i++) {
+                var pt = this.petals[i];
+                pt.x += pt.vx * this.deltaTime;
+                pt.y += pt.vy * this.deltaTime;
+                pt.wobble += 0.08;
+                pt.vy += Math.sin(pt.wobble) * 0.05;
+                pt.rotation += pt.rotSpeed * this.deltaTime;
+                pt.life -= 0.003 * this.deltaTime;
+            }
+            this.petals = this.petals.filter(function(p) { return p.life > 0 && p.x > -20; });
+
+            // Flower sway
+            for (var i = 0; i < this.flowers.length; i++) {
+                this.flowers[i].sway += 0.02;
+            }
+            
+            // Bird animation
+            this.bird.wingPhase += this.bird.flapAnim > 0.2 ? 0.5 : 0.15;
+            this.bird.flapAnim *= 0.85;
+            this.bird.blink++;
+            
+            if (this.state === 'ready') {
+                this.bird.y = canvas.height / 2 + Math.sin(this.time * 0.04) * 12;
+                this.bird.rotation = Math.sin(this.time * 0.03) * 0.1;
+                return;
+            }
+            
+            if (this.state !== 'playing') return;
+            
+            this.maybeFart();
+            this.maybePoop();
+            this.maybeEgg();
+            this.maybeFlip();
+            this.maybeHeart();
+            this.maybeStars();
+            this.maybeChirp();
+            this.maybeRain();
+            this.maybePetal();
+
+            if (this.bird.flapAnim > 0.6 && Math.random() < 0.4) {
+                this.spawnSparkle(this.bird.x - this.bird.radius * 0.2, this.bird.y - this.bird.radius * 0.5, '#fff9c4');
+            }
+            
+            // Update flip animation
+            if (this.bird.flipping) {
+                this.bird.flipProgress += 0.08 * this.deltaTime;
+                this.bird.flipRotation = this.bird.flipProgress * Math.PI * 2;
+                if (Math.random() < 0.6) {
+                    this.spawnSparkle(
+                        this.bird.x + (Math.random() - 0.5) * this.bird.radius,
+                        this.bird.y + (Math.random() - 0.5) * this.bird.radius,
+                        '#fdd835'
+                    );
+                }
+                if (this.bird.flipProgress >= 1) {
+                    this.bird.flipping = false;
+                    this.bird.flipProgress = 0;
+                    this.bird.flipRotation = 0;
+                }
+            }
+            
+            // Update hearts
+            for (var i = 0; i < this.hearts.length; i++) {
+                var heart = this.hearts[i];
+                heart.y += heart.vy * this.deltaTime;
+                heart.vy -= 0.02 * this.deltaTime;
+                heart.wobble += 0.1 * this.deltaTime;
+                heart.x += Math.sin(heart.wobble) * 0.5 * this.deltaTime;
+                heart.life -= 0.008 * this.deltaTime;
+                heart.size += 0.1 * this.deltaTime;
+            }
+            this.hearts = this.hearts.filter(function(h) { return h.life > 0; });
+            
+            // Update stars
+            for (var i = 0; i < this.stars.length; i++) {
+                var star = this.stars[i];
+                star.x += star.vx * this.deltaTime;
+                star.y += star.vy * this.deltaTime;
+                star.vy += 0.05 * this.deltaTime;
+                star.vx *= Math.pow(0.99, this.deltaTime);
+                star.rotation += star.rotationSpeed * this.deltaTime;
+                star.life -= 0.015 * this.deltaTime;
+            }
+            this.stars = this.stars.filter(function(s) { return s.life > 0; });
+
+            // Update chirps
+            for (var i = 0; i < this.chirps.length; i++) {
+                var chirp = this.chirps[i];
+                chirp.y += chirp.vy * this.deltaTime;
+                chirp.wobble += 0.12 * this.deltaTime;
+                chirp.x += Math.sin(chirp.wobble) * 0.4 * this.deltaTime;
+                chirp.life -= 0.02 * this.deltaTime;
+            }
+            this.chirps = this.chirps.filter(function(c) { return c.life > 0; });
+
+            // Update sparkles
+            for (var i = 0; i < this.sparkles.length; i++) {
+                var sp = this.sparkles[i];
+                sp.x += sp.vx * this.deltaTime;
+                sp.y += sp.vy * this.deltaTime;
+                sp.vx *= 0.98;
+                sp.vy *= 0.98;
+                sp.rotation += 0.2 * this.deltaTime;
+                sp.life -= 0.03 * this.deltaTime;
+            }
+            this.sparkles = this.sparkles.filter(function(s) { return s.life > 0; });
+            
+            // Update eggs
+            var eggSpeed = this.getSpeed() * this.deltaTime;
+            for (var i = 0; i < this.eggs.length; i++) {
+                var egg = this.eggs[i];
+                if (!egg.landed) {
+                    egg.vy += 0.3 * this.deltaTime;
+                    egg.y += egg.vy * this.deltaTime;
+                    egg.x -= eggSpeed;
+                    
+                    if (egg.y >= this.groundY - 5) {
+                        egg.landed = true;
+                        egg.y = this.groundY - 5;
+                        egg.landedY = egg.y;
+                        if (!egg.cracked) {
+                            egg.cracked = true;
+                            egg.crackSize = egg.size * 1.5;
+                        }
+                    }
+                    
+                    for (var j = 0; j < this.pipes.length; j++) {
+                        var p = this.pipes[j];
+                        var pipeTop = p.gapY - p.gap/2;
+                        var pipeBot = p.gapY + p.gap/2;
+                        if (egg.x > p.x - p.width/2 - 8 && egg.x < p.x + p.width/2 + 8) {
+                            if (egg.y >= pipeTop - 25 && egg.y <= pipeTop && egg.vy > 0) {
+                                egg.landed = true;
+                                egg.y = pipeTop - 25;
+                                egg.landedY = egg.y;
+                                egg.onPipe = j;
+                                if (!egg.cracked) { egg.cracked = true; egg.crackSize = egg.size * 1.5; }
+                            }
+                            if (egg.y >= pipeBot && egg.y <= pipeBot + 10 && egg.vy > 0) {
+                                egg.landed = true;
+                                egg.y = pipeBot;
+                                egg.landedY = egg.y;
+                                egg.onPipe = j;
+                                if (!egg.cracked) { egg.cracked = true; egg.crackSize = egg.size * 1.5; }
+                            }
+                        }
+                    }
+                } else {
+                    egg.x -= eggSpeed;
+                }
+            }
+            this.eggs = this.eggs.filter(function(e) { return e.x > -50; });
+
+            // Update poops
+            var poopSpeed = this.getSpeed() * this.deltaTime;
+            for (var i = 0; i < this.poops.length; i++) {
+                var poop = this.poops[i];
+                if (!poop.landed) {
+                    poop.vy += 0.3 * this.deltaTime;
+                    poop.y += poop.vy * this.deltaTime;
+                    poop.x -= poopSpeed;
+
+                    if (poop.y >= this.groundY - 5) {
+                        poop.landed = true;
+                        poop.y = this.groundY - 5;
+                        poop.landedY = poop.y;
+                        if (!poop.splatted) {
+                            poop.splatted = true;
+                            poop.splatSize = poop.size * 2.1;
+                        }
+                    }
+
+                    for (var j = 0; j < this.pipes.length; j++) {
+                        var p = this.pipes[j];
+                        var pipeTop = p.gapY - p.gap/2;
+                        var pipeBot = p.gapY + p.gap/2;
+                        if (poop.x > p.x - p.width/2 - 8 && poop.x < p.x + p.width/2 + 8) {
+                            if (poop.y >= pipeTop - 25 && poop.y <= pipeTop && poop.vy > 0) {
+                                poop.landed = true;
+                                poop.y = pipeTop - 25;
+                                poop.landedY = poop.y;
+                                poop.onPipe = j;
+                                if (!poop.splatted) { poop.splatted = true; poop.splatSize = poop.size * 2.1; }
+                            }
+                            if (poop.y >= pipeBot && poop.y <= pipeBot + 10 && poop.vy > 0) {
+                                poop.landed = true;
+                                poop.y = pipeBot;
+                                poop.landedY = poop.y;
+                                poop.onPipe = j;
+                                if (!poop.splatted) { poop.splatted = true; poop.splatSize = poop.size * 2.1; }
+                            }
+                        }
+                    }
+                } else {
+                    poop.x -= poopSpeed;
+                }
+            }
+            this.poops = this.poops.filter(function(p) { return p.x > -50; });
+
+            // Physics
+            var dt = this.deltaTime;
+            this.bird.vy += 0.375 * dt;
+            if (this.bird.vy > 9) this.bird.vy = 9;
+            this.bird.y += this.bird.vy * dt;
+            
+            var targetRot = this.bird.vy * 0.08;
+            targetRot = Math.max(-0.5, Math.min(1.2, targetRot));
+            this.bird.rotation += (targetRot - this.bird.rotation) * 0.1;
+            
+            this.distance += 0.2;
+            
+            // Clouds scroll
+            for (var i = 0; i < this.clouds.length; i++) {
+                var c = this.clouds[i];
+                c.x -= c.speed * this.deltaTime;
+                if (c.x < -c.size * 2) {
+                    c.x = canvas.width + c.size;
+                    c.y = 80 + Math.random() * (canvas.height * 0.3);
+                }
+            }
+
+            // Rain clouds scroll
+            for (var i = 0; i < this.rainClouds.length; i++) {
+                var rc = this.rainClouds[i];
+                rc.x -= rc.speed * this.deltaTime;
+                if (rc.x < -rc.size * 3) {
+                    rc.x = canvas.width + rc.size * 2;
+                    rc.y = 70 + Math.random() * 60;
+                }
+            }
+            
+            // Hills scroll with parallax
+            var currentSpeed = this.getSpeed() * this.deltaTime;
+            
+            for (var i = 0; i < this.hillsBack.length; i++) this.hillsBack[i].x -= currentSpeed * 0.3;
+            var lastHillBack = this.hillsBack[this.hillsBack.length - 1];
+            if (lastHillBack && lastHillBack.x + lastHillBack.width / 2 < canvas.width + 300) {
+                this.hillsBack.push({ x: lastHillBack.x + 180 + Math.random() * 120, height: 100 + Math.random() * 80, width: 250 + Math.random() * 300 });
+            }
+            this.hillsBack = this.hillsBack.filter(function(h) { return h.x + h.width > -200; });
+            
+            for (var i = 0; i < this.hillsMid.length; i++) this.hillsMid[i].x -= currentSpeed * 0.5;
+            var lastHillMid = this.hillsMid[this.hillsMid.length - 1];
+            if (lastHillMid && lastHillMid.x + lastHillMid.width / 2 < canvas.width + 300) {
+                this.hillsMid.push({ x: lastHillMid.x + 120 + Math.random() * 100, height: 60 + Math.random() * 50, width: 180 + Math.random() * 200 });
+            }
+            this.hillsMid = this.hillsMid.filter(function(h) { return h.x + h.width > -150; });
+            
+            for (var i = 0; i < this.hillsFront.length; i++) this.hillsFront[i].x -= currentSpeed * 0.7;
+            var lastHillFront = this.hillsFront[this.hillsFront.length - 1];
+            if (lastHillFront && lastHillFront.x + lastHillFront.width / 2 < canvas.width + 300) {
+                this.hillsFront.push({ x: lastHillFront.x + 80 + Math.random() * 80, height: 30 + Math.random() * 40, width: 120 + Math.random() * 150 });
+            }
+            this.hillsFront = this.hillsFront.filter(function(h) { return h.x + h.width > -100; });
+
+            // Flowers scroll with ground
+            for (var i = 0; i < this.flowers.length; i++) this.flowers[i].x -= currentSpeed * 0.7;
+            // Spawn new flowers
+            var lastFlower = this.flowers[this.flowers.length - 1];
+            if (!lastFlower || lastFlower.x < canvas.width - 20) {
+                if (Math.random() < 0.3) {
+                    this.flowers.push({
+                        x: canvas.width + 10,
+                        size: 4 + Math.random() * 6,
+                        color: ['#ff6b9d', '#feca57', '#c471ed', '#ff9ff3', '#54a0ff', '#1dd1a1', '#ff6b6b'][Math.floor(Math.random() * 7)],
+                        petals: 4 + Math.floor(Math.random() * 3),
+                        sway: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            this.flowers = this.flowers.filter(function(f) { return f.x > -30; });
+            
+            // Pipes
+            var self = this;
+            var currentSpeed = this.getSpeed() * this.deltaTime;
+            for (var i = this.pipes.length - 1; i >= 0; i--) {
+                var p = this.pipes[i];
+                p.x -= currentSpeed;
+                p.glow += 0.05;
+                
+                var hr = this.bird.radius * 0.55;
+                if (this.bird.x + hr > p.x - p.width/2 && this.bird.x - hr < p.x + p.width/2) {
+                    if (this.bird.y - hr < p.gapY - p.gap/2 || this.bird.y + hr > p.gapY + p.gap/2) {
+                        this.die();
+                        return;
+                    }
+                }
+                
+                if (!p.passed && p.x + p.width/2 < this.bird.x) {
+                    p.passed = true;
+                    this.score++;
+                    this.pipesPassed++;
+                    document.getElementById('scoreDisplay').textContent = this.score;
+                    playScore();
+                    if (this.score % 10 === 0) showCelebration();
+                }
+                
+                if (p.x < -p.width) this.pipes.splice(i, 1);
+            }
+            
+            var last = this.pipes[this.pipes.length - 1];
+            if (!last || last.x < canvas.width - 280) this.spawnPipe(canvas.width + 100);
+            
+            if (this.bird.y > this.groundY - this.bird.radius || this.bird.y < this.ceilingY + this.bird.radius) {
+                this.die();
+            }
+        },
+        
+        render: function() {
+            var dayPhase = getDayPhase(this.time);
+            var sunAlpha = Math.max(0, Math.min(1, (dayPhase - 0.35) / 0.65));
+            var nightMix = Math.pow(Math.max(0, (0.35 - dayPhase) / 0.35), 1.4);
+            var sunset = Math.max(0, 1 - Math.abs(dayPhase - 0.5) * 2);
+
+            // Spring sky gradient - warmer, greener
+            var bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bg.addColorStop(0, mixColor('#87ceeb', '#0b1026', nightMix));
+            bg.addColorStop(0.4, mixColor('#b8e8c0', '#1a2750', nightMix));
+            bg.addColorStop(0.7, mixColor('#d4f0d4', '#2a3b6b', nightMix));
+            bg.addColorStop(1, mixColor('#e8f5e9', '#2f4d6f', nightMix));
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Rain darkening overlay
+            if (this.rainIntensity > 0) {
+                ctx.fillStyle = 'rgba(80, 90, 100, ' + (this.rainIntensity * 0.15) + ')';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            if (sunset > 0.01) {
+                var dusk = ctx.createLinearGradient(0, canvas.height * 0.2, 0, canvas.height * 0.9);
+                dusk.addColorStop(0, 'rgba(255, 200, 150,' + (0.18 * sunset) + ')');
+                dusk.addColorStop(0.6, 'rgba(255, 150, 200,' + (0.12 * sunset) + ')');
+                dusk.addColorStop(1, 'rgba(150, 100, 180,' + (0.08 * sunset) + ')');
+                ctx.fillStyle = dusk;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Stars
+            if (nightMix > 0.05) {
+                ctx.save();
+                ctx.fillStyle = '#ffffff';
+                for (var i = 0; i < this.backgroundStars.length; i++) {
+                    var star = this.backgroundStars[i];
+                    var twinkle = 0.6 + Math.sin(star.twinkle) * 0.4;
+                    ctx.globalAlpha = twinkle * nightMix;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+                ctx.globalAlpha = 1;
+            }
+
+            // Sun & Moon
+            var sunX = canvas.width * (0.1 + dayPhase * 0.8);
+            var sunY = canvas.height * (0.2 + Math.sin(dayPhase * Math.PI) * -0.12);
+            ctx.save();
+            ctx.globalAlpha = 0.9 * sunAlpha * (1 - this.rainIntensity * 0.5);
+            var sunGlow = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 90);
+            sunGlow.addColorStop(0, 'rgba(255, 238, 180, 0.9)');
+            sunGlow.addColorStop(1, 'rgba(255, 238, 180, 0)');
+            ctx.fillStyle = sunGlow;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 90, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffe59a';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 45, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            var moonPhase = (dayPhase + 0.5) % 1;
+            var moonX = canvas.width * (0.1 + moonPhase * 0.8);
+            var moonY = canvas.height * (0.25 + Math.sin(moonPhase * Math.PI) * -0.12);
+            ctx.save();
+            ctx.globalAlpha = 0.85 * nightMix;
+            var moonGlow = ctx.createRadialGradient(moonX, moonY, 8, moonX, moonY, 70);
+            moonGlow.addColorStop(0, 'rgba(210, 220, 255, 0.8)');
+            moonGlow.addColorStop(1, 'rgba(210, 220, 255, 0)');
+            ctx.fillStyle = moonGlow;
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 70, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#dfe7ff';
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 32, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(190, 200, 230, 0.6)';
+            ctx.beginPath();
+            ctx.arc(moonX - 10, moonY - 6, 6, 0, Math.PI * 2);
+            ctx.arc(moonX + 8, moonY + 10, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Clouds (normal white ones)
+            for (var i = 0; i < this.clouds.length; i++) {
+                var c = this.clouds[i];
+                ctx.globalAlpha = c.opacity * (1 - this.rainIntensity * 0.3);
+                ctx.fillStyle = mixColor('#ffffff', '#b0c4de', nightMix * 0.85);
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+                ctx.arc(c.x + c.size * 0.6, c.y - c.size * 0.25, c.size * 0.7, 0, Math.PI * 2);
+                ctx.arc(c.x + c.size * 1.1, c.y, c.size * 0.8, 0, Math.PI * 2);
+                ctx.arc(c.x + c.size * 0.35, c.y + c.size * 0.35, c.size * 0.55, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            // Rain clouds (dark gray, appear during showers)
+            if (this.rainIntensity > 0) {
+                for (var i = 0; i < this.rainClouds.length; i++) {
+                    var rc = this.rainClouds[i];
+                    ctx.globalAlpha = this.rainIntensity * 0.7;
+                    ctx.fillStyle = '#78909c';
+                    ctx.beginPath();
+                    ctx.arc(rc.x, rc.y, rc.size, 0, Math.PI * 2);
+                    ctx.arc(rc.x + rc.size * 0.7, rc.y - rc.size * 0.2, rc.size * 0.8, 0, Math.PI * 2);
+                    ctx.arc(rc.x + rc.size * 1.3, rc.y, rc.size * 0.9, 0, Math.PI * 2);
+                    ctx.arc(rc.x + rc.size * 0.4, rc.y + rc.size * 0.3, rc.size * 0.6, 0, Math.PI * 2);
+                    ctx.arc(rc.x - rc.size * 0.3, rc.y + rc.size * 0.1, rc.size * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+            
+            // Spring hills - Back (lightest spring green)
+            for (var i = 0; i < this.hillsBack.length; i++) {
+                var h = this.hillsBack[i];
+                var hillGrad = ctx.createLinearGradient(0, this.groundY - h.height, 0, this.groundY);
+                hillGrad.addColorStop(0, mixColor('#c8e6c9', '#2b3f4b', nightMix));
+                hillGrad.addColorStop(0.4, mixColor('#a5d6a7', '#3a5160', nightMix));
+                hillGrad.addColorStop(1, mixColor('#81c784', '#4b6374', nightMix));
+                ctx.fillStyle = hillGrad;
+                ctx.beginPath();
+                ctx.moveTo(h.x - h.width/2, this.groundY);
+                ctx.bezierCurveTo(h.x - h.width/3, this.groundY - h.height * 0.3, h.x - h.width/5, this.groundY - h.height, h.x, this.groundY - h.height);
+                ctx.bezierCurveTo(h.x + h.width/5, this.groundY - h.height, h.x + h.width/3, this.groundY - h.height * 0.3, h.x + h.width/2, this.groundY);
+                ctx.fill();
+            }
+            
+            // Mid hills (medium spring green)
+            for (var i = 0; i < this.hillsMid.length; i++) {
+                var h = this.hillsMid[i];
+                var hillGrad = ctx.createLinearGradient(0, this.groundY - h.height, 0, this.groundY);
+                hillGrad.addColorStop(0, mixColor('#66bb6a', '#1f3340', nightMix));
+                hillGrad.addColorStop(0.4, mixColor('#4caf50', '#2e4452', nightMix));
+                hillGrad.addColorStop(1, mixColor('#388e3c', '#3a5564', nightMix));
+                ctx.fillStyle = hillGrad;
+                ctx.beginPath();
+                ctx.moveTo(h.x - h.width/2, this.groundY);
+                ctx.bezierCurveTo(h.x - h.width/3, this.groundY - h.height * 0.4, h.x - h.width/6, this.groundY - h.height, h.x, this.groundY - h.height);
+                ctx.bezierCurveTo(h.x + h.width/6, this.groundY - h.height, h.x + h.width/3, this.groundY - h.height * 0.4, h.x + h.width/2, this.groundY);
+                ctx.fill();
+            }
+            
+            // Front hills (darkest spring green)
+            for (var i = 0; i < this.hillsFront.length; i++) {
+                var h = this.hillsFront[i];
+                var hillGrad = ctx.createLinearGradient(0, this.groundY - h.height, 0, this.groundY);
+                hillGrad.addColorStop(0, mixColor('#2e7d32', '#162a33', nightMix));
+                hillGrad.addColorStop(0.4, mixColor('#388e3c', '#203442', nightMix));
+                hillGrad.addColorStop(1, mixColor('#43a047', '#2b4150', nightMix));
+                ctx.fillStyle = hillGrad;
+                ctx.beginPath();
+                ctx.moveTo(h.x - h.width/2, this.groundY);
+                ctx.bezierCurveTo(h.x - h.width/3, this.groundY - h.height * 0.5, h.x - h.width/6, this.groundY - h.height, h.x, this.groundY - h.height);
+                ctx.bezierCurveTo(h.x + h.width/6, this.groundY - h.height, h.x + h.width/3, this.groundY - h.height * 0.5, h.x + h.width/2, this.groundY);
+                ctx.fill();
+            }
+            
+            // Top bar (ceiling)
+            var ceilGrad = ctx.createLinearGradient(0, 0, 0, this.ceilingY);
+            ceilGrad.addColorStop(0, mixColor('#66bb6a', '#1b2a4a', nightMix));
+            ceilGrad.addColorStop(1, mixColor('#81c784', '#2b3b63', nightMix));
+            ctx.fillStyle = ceilGrad;
+            ctx.fillRect(0, 0, canvas.width, this.ceilingY);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, this.ceilingY - 3);
+            ctx.lineTo(canvas.width, this.ceilingY - 3);
+            ctx.stroke();
+            
+            // Pipes
+            for (var i = 0; i < this.pipes.length; i++) this.renderPipe(this.pipes[i]);
+            
+            // Ground (spring grass green)
+            var groundGrad = ctx.createLinearGradient(0, this.groundY, 0, canvas.height);
+            groundGrad.addColorStop(0, mixColor('#66bb6a', '#1e2f55', nightMix));
+            groundGrad.addColorStop(0.3, mixColor('#4caf50', '#1a2844', nightMix));
+            groundGrad.addColorStop(1, mixColor('#388e3c', '#172544', nightMix));
+            ctx.fillStyle = groundGrad;
+            ctx.fillRect(0, this.groundY, canvas.width, canvas.height - this.groundY);
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, this.groundY + 3);
+            ctx.lineTo(canvas.width, this.groundY + 3);
+            ctx.stroke();
+
+            // Ground flowers
+            for (var i = 0; i < this.flowers.length; i++) {
+                var fl = this.flowers[i];
+                var fy = this.groundY - 2 + Math.sin(fl.sway) * 1;
+                drawFlower(ctx, fl.x, fy, fl.size, fl.color, fl.petals);
+            }
+
+            // Butterflies
+            for (var i = 0; i < this.butterflies.length; i++) {
+                var bf = this.butterflies[i];
+                var wingOpen = Math.abs(Math.sin(bf.wingPhase));
+                ctx.save();
+                ctx.translate(bf.x, bf.y);
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = bf.color;
+                // Left wing
+                ctx.save();
+                ctx.scale(wingOpen, 1);
+                ctx.beginPath();
+                ctx.ellipse(-bf.size * 0.5, -bf.size * 0.2, bf.size, bf.size * 0.7, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                // Right wing
+                ctx.save();
+                ctx.scale(wingOpen, 1);
+                ctx.beginPath();
+                ctx.ellipse(bf.size * 0.5, -bf.size * 0.2, bf.size, bf.size * 0.7, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                // Body
+                ctx.fillStyle = '#3e2723';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, bf.size * 0.15, bf.size * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+
+            // Floating petals
+            for (var i = 0; i < this.petals.length; i++) {
+                var pt = this.petals[i];
+                ctx.save();
+                ctx.globalAlpha = pt.life * 0.7;
+                ctx.translate(pt.x, pt.y);
+                ctx.rotate(pt.rotation);
+                ctx.fillStyle = pt.color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, pt.size, pt.size * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+            
+            // Feather particles
+            for (var i = 0; i < this.featherParticles.length; i++) {
+                var p = this.featherParticles[i];
+                ctx.globalAlpha = p.life * 0.6;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            // Fart particles
+            for (var i = 0; i < this.fartParticles.length; i++) {
+                var p = this.fartParticles[i];
+                ctx.globalAlpha = p.life * 0.6;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            // Eggs
+            for (var i = 0; i < this.eggs.length; i++) {
+                var egg = this.eggs[i];
+                var ex = egg.x, ey = egg.y, es = egg.size;
+
+                if (egg.landed && egg.cracked) {
+                    // Cracked egg on ground
+                    ctx.fillStyle = '#fff8e1';
+                    ctx.beginPath();
+                    ctx.ellipse(ex, ey + es * 0.1, egg.crackSize, es * 0.6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Yolk
+                    ctx.fillStyle = '#ffab00';
+                    ctx.beginPath();
+                    ctx.arc(ex, ey, es * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Highlight on yolk
+                    ctx.fillStyle = '#ffd740';
+                    ctx.beginPath();
+                    ctx.arc(ex - es * 0.15, ey - es * 0.15, es * 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Shell pieces
+                    ctx.strokeStyle = '#d7ccc8';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(ex - egg.crackSize * 0.4, ey - es * 0.2, es * 0.4, Math.PI * 1.2, Math.PI * 1.8);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(ex + egg.crackSize * 0.3, ey - es * 0.1, es * 0.3, Math.PI * 1.1, Math.PI * 1.7);
+                    ctx.stroke();
+                } else {
+                    // Falling egg
+                    ctx.fillStyle = '#fff8e1';
+                    ctx.beginPath();
+                    ctx.ellipse(ex, ey, es * 0.6, es * 0.8, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#d7ccc8';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    // Highlight
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.ellipse(ex - es * 0.15, ey - es * 0.2, es * 0.2, es * 0.15, -0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Bird poops
+            for (var i = 0; i < this.poops.length; i++) {
+                var poop = this.poops[i];
+                var px = poop.x;
+                var py = poop.y;
+                var ps = poop.size;
+                var baseColor = '#8d6e63';
+                var edgeColor = '#6d4c41';
+                var highlightColor = '#a1887f';
+
+                if (poop.landed) {
+                    var splatW = poop.splatSize || ps * 2.2;
+                    var splatH = ps * 0.8;
+                    ctx.fillStyle = baseColor;
+                    ctx.beginPath();
+                    ctx.ellipse(px, py + ps * 0.15, splatW, splatH, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = edgeColor;
+                    ctx.beginPath();
+                    ctx.ellipse(px - splatW * 0.35, py + splatH * 0.15, ps * 0.8, ps * 0.35, 0, 0, Math.PI * 2);
+                    ctx.ellipse(px + splatW * 0.3, py + splatH * 0.2, ps * 0.7, ps * 0.3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = highlightColor;
+                    ctx.beginPath();
+                    ctx.ellipse(px - splatW * 0.15, py - splatH * 0.1, ps * 0.4, ps * 0.2, -0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = baseColor;
+                    ctx.beginPath();
+                    ctx.ellipse(px, py, ps * 0.7, ps * 0.95, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.moveTo(px, py - ps * 0.9);
+                    ctx.quadraticCurveTo(px + ps * 0.6, py - ps * 0.1, px + ps * 0.15, py + ps * 0.8);
+                    ctx.quadraticCurveTo(px - ps * 0.05, py + ps * 1.2, px - ps * 0.2, py + ps * 0.9);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.fillStyle = highlightColor;
+                    ctx.beginPath();
+                    ctx.ellipse(px - ps * 0.2, py - ps * 0.2, ps * 0.25, ps * 0.15, -0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Hearts
+            for (var i = 0; i < this.hearts.length; i++) {
+                var heart = this.hearts[i];
+                ctx.globalAlpha = heart.life;
+                ctx.fillStyle = '#ff6b9d';
+                ctx.save();
+                ctx.translate(heart.x, heart.y);
+                ctx.scale(heart.size / 15, heart.size / 15);
+                ctx.beginPath();
+                ctx.moveTo(0, -5);
+                ctx.bezierCurveTo(-8, -15, -15, -5, 0, 10);
+                ctx.bezierCurveTo(15, -5, 8, -15, 0, -5);
+                ctx.fill();
+                ctx.fillStyle = '#ff9dc4';
+                ctx.beginPath();
+                ctx.ellipse(-4, -6, 3, 2, -0.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+            
+            // Stars
+            for (var i = 0; i < this.stars.length; i++) {
+                var star = this.stars[i];
+                ctx.globalAlpha = star.life;
+                ctx.fillStyle = '#ffd700';
+                ctx.save();
+                ctx.translate(star.x, star.y);
+                ctx.rotate(star.rotation);
+                var s = star.size;
+                ctx.beginPath();
+                ctx.moveTo(0, -s);
+                ctx.lineTo(s * 0.3, -s * 0.3);
+                ctx.lineTo(s, 0);
+                ctx.lineTo(s * 0.3, s * 0.3);
+                ctx.lineTo(0, s);
+                ctx.lineTo(-s * 0.3, s * 0.3);
+                ctx.lineTo(-s, 0);
+                ctx.lineTo(-s * 0.3, -s * 0.3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#fff8dc';
+                ctx.beginPath();
+                ctx.arc(0, 0, s * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+
+            // Chirp notes
+            for (var i = 0; i < this.chirps.length; i++) {
+                var chirp = this.chirps[i];
+                ctx.save();
+                ctx.globalAlpha = chirp.life;
+                ctx.translate(chirp.x, chirp.y);
+                ctx.scale(chirp.scale, chirp.scale);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, -12);
+                ctx.lineTo(6, -10);
+                ctx.stroke();
+                ctx.fillStyle = '#fdd835';
+                ctx.beginPath();
+                ctx.arc(0, 2, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+
+            // Sparkles
+            for (var i = 0; i < this.sparkles.length; i++) {
+                var sp = this.sparkles[i];
+                ctx.save();
+                ctx.globalAlpha = sp.life;
+                ctx.translate(sp.x, sp.y);
+                ctx.rotate(sp.rotation);
+                ctx.fillStyle = sp.color;
+                var s = sp.size;
+                ctx.beginPath();
+                ctx.moveTo(0, -s);
+                ctx.lineTo(s * 0.35, -s * 0.2);
+                ctx.lineTo(s, 0);
+                ctx.lineTo(s * 0.35, s * 0.2);
+                ctx.lineTo(0, s);
+                ctx.lineTo(-s * 0.35, s * 0.2);
+                ctx.lineTo(-s, 0);
+                ctx.lineTo(-s * 0.35, -s * 0.2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+            
+            // Regular particles
+            for (var i = 0; i < this.particles.length; i++) {
+                var p = this.particles[i];
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            // Raindrops
+            if (this.raindrops.length > 0) {
+                ctx.strokeStyle = 'rgba(180, 200, 220, 0.4)';
+                ctx.lineWidth = 1;
+                for (var i = 0; i < this.raindrops.length; i++) {
+                    var rd = this.raindrops[i];
+                    ctx.beginPath();
+                    ctx.moveTo(rd.x, rd.y);
+                    ctx.lineTo(rd.x + rd.vx * 2, rd.y - rd.vy * 1.5);
+                    ctx.stroke();
+                }
+            }
+            
+            // Bird (spring chicken) - uses same renderChickAt as start screen
+            if (this.state !== 'menu') {
+                var isBlinking = this.bird.blink > 200 && this.bird.blink < 210;
+                if (this.bird.blink > 210) this.bird.blink = 0;
+
+                renderChickAt(ctx, this.bird.x, this.bird.y, this.bird.rotation,
+                    this.bird.wingPhase, this.bird.flapAnim, this.bird.radius,
+                    isBlinking, this.bird.flipping ? this.bird.flipRotation : 0);
+            }
+        },
+        
+        renderPipe: function(p) {
+            var topH = p.gapY - p.gap/2 - this.ceilingY;
+            var botY = p.gapY + p.gap/2;
+            var botH = this.groundY - botY;
+            var w = p.width;
+            var capH = 25;
+            var capW = w + 16;
+            var baseColor = p.color;
+            this.drawPipe3D(p.x, this.ceilingY, w, topH, baseColor, true, capH, capW);
+            this.drawPipe3D(p.x, botY, w, botH, baseColor, false, capH, capW);
+        },
+        
+        drawPipe3D: function(x, y, width, height, color, isTop, capH, capW) {
+            var bodyX = x - width/2;
+            var capX = x - capW/2;
+            var darker = this.shadeColor(color, -30);
+            var lighter = this.shadeColor(color, 30);
+            
+            var bodyGrad = ctx.createLinearGradient(bodyX, 0, bodyX + width, 0);
+            bodyGrad.addColorStop(0, darker);
+            bodyGrad.addColorStop(0.2, color);
+            bodyGrad.addColorStop(0.5, lighter);
+            bodyGrad.addColorStop(0.8, color);
+            bodyGrad.addColorStop(1, darker);
+            ctx.fillStyle = bodyGrad;
+            ctx.fillRect(bodyX, y, width, height);
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.fillRect(bodyX + width * 0.35, y, width * 0.12, height);
+            
+            ctx.save();
+            ctx.translate(x, y + height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.font = 'bold 12px "IBM Plex Mono", monospace';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            if (height > 80) ctx.fillText('CALVEY INC.', 0, 0);
+            ctx.restore();
+            
+            var capY = isTop ? y + height - capH : y;
+            var capGrad = ctx.createLinearGradient(capX, 0, capX + capW, 0);
+            capGrad.addColorStop(0, darker);
+            capGrad.addColorStop(0.15, color);
+            capGrad.addColorStop(0.45, lighter);
+            capGrad.addColorStop(0.85, color);
+            capGrad.addColorStop(1, darker);
+            ctx.fillStyle = capGrad;
+            ctx.beginPath();
+            ctx.roundRect(capX, capY, capW, capH, 4);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.fillRect(capX + capW * 0.32, capY + 4, capW * 0.15, capH - 8);
+            
+            var glow = Math.sin(this.time * 0.05) * 0.2 + 0.8;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 10 * glow;
+            ctx.strokeStyle = lighter;
+            ctx.lineWidth = 2;
+            var edgeY = isTop ? y + height : y;
+            ctx.beginPath();
+            ctx.moveTo(capX, edgeY);
+            ctx.lineTo(capX + capW, edgeY);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        },
+        
+        shadeColor: function(color, percent) {
+            var num = parseInt(color.replace('#', ''), 16);
+            var amt = Math.round(2.55 * percent);
+            var R = (num >> 16) + amt;
+            var G = (num >> 8 & 0x00FF) + amt;
+            var B = (num & 0x0000FF) + amt;
+            R = Math.max(0, Math.min(255, R));
+            G = Math.max(0, Math.min(255, G));
+            B = Math.max(0, Math.min(255, B));
+            return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+        }
+    };
+    
+    // Initialize
+    game.groundY = canvas.height - 60;
+    game.init();
+    
+    // INPUT
+    function handleTap(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+        if (e.target.closest('.leaderboard')) return;
+        if (e.type === 'touchstart') e.preventDefault();
+        game.flap();
+    }
+    
+    document.addEventListener('click', handleTap);
+    document.addEventListener('touchstart', handleTap, { passive: false });
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            game.flap();
+        }
+    });
+    
+    // Game loop with delta time
+    function loop(currentTime) {
+        if (lastFrameTime === 0) lastFrameTime = currentTime;
+        var elapsed = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+        game.deltaTime = Math.min(elapsed / frameInterval, 3);
+        game.update();
+        game.render();
+        requestAnimationFrame(loop);
+    }
+    
+    requestAnimationFrame(loop);
+</script>
+
+
+</body>
+</html>
