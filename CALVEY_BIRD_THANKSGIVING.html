@@ -83,9 +83,9 @@ dialog h2 { margin:5px 30px 19px; font:bold 35px/1 var(--serif); letter-spacing:
 .tabs { justify-content:center; gap:4px; margin:0 auto 15px; }
 .tabs button { background:none; padding:7px 10px; border:1px solid transparent; font:700 12px var(--mono); }
 .tabs button[aria-pressed="true"] { border-color:var(--ink); background:#eddcbb; }
-#list { padding:0; margin:0; list-style:none; max-height:36svh; overflow:auto; }
-#list li { display:flex; justify-content:space-between; padding:10px 6px; border-top:1px solid #ceba95; font:14px var(--mono); }
-#list .rank { color:#866748; margin-right:12px; }
+.score-list { padding:0; margin:0; list-style:none; max-height:36svh; overflow:auto; }
+.score-list li { display:flex; justify-content:space-between; padding:10px 6px; border-top:1px solid #ceba95; font:14px var(--mono); }
+.score-list .rank { color:#866748; margin-right:12px; }
 #boardMsg,#postStatus { font:14px/1.45 var(--serif); }
 #boardMsg:empty,#postStatus:empty { display:none; }
 #postForm { margin:0 0 16px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:6px; }
@@ -130,6 +130,11 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
 .intro-desc { color:#493447; }
 .card,dialog { background:#fff2ca; border-radius:22px; outline:0; }
 @container (max-aspect-ratio:.9) { h1 { letter-spacing:-.065em; } h1 em { padding:0; } }
+.score-list { overflow-y:auto; touch-action:pan-y; }
+#finishList { max-height:clamp(88px,23svh,220px); }
+#finishBoardTitle { margin:16px 0 6px; font-size:19px; }
+#finishBoardMsg:empty { display:none; }
+#retryScore { margin:0 auto 8px; }
 </style>
 </head>
 <body>
@@ -172,7 +177,11 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
       <div class="stats"><div><strong id="finalGates">0</strong><span>Gates</span></div><div><strong id="finalMeters">0 m</strong><span>Distance</span></div><div><strong id="finalBest">0</strong><span>Best</span></div></div>
   <form id="postForm"><label for="initials">Remember my name for the public leaderboard</label><input id="initials" placeholder="Your name" maxlength="20" required autocomplete="nickname"><button type="submit" class="utility">Save best score</button></form>
   <p id="postStatus" aria-live="polite"></p>
-      <div class="actions"><button type="button" class="subtle" id="switchPlayer" hidden>Next player</button><button type="button" class="subtle" id="finishBoard">High scores</button><button type="button" class="primary" id="replay"><svg class="icon" aria-hidden="true"><use href="#replayIcon"/></svg>Fly again</button><button type="button" class="subtle" id="menuBtn">Title screen</button></div>
+      <button type="button" id="retryScore" class="subtle" hidden>Retry score save</button>
+      <div class="actions"><button type="button" class="subtle" id="switchPlayer" hidden>Next player</button><button type="button" class="primary" id="replay"><svg class="icon" aria-hidden="true"><use href="#replayIcon"/></svg>Fly again</button><button type="button" class="subtle" id="menuBtn">Title screen</button></div>
+      <h3 id="finishBoardTitle">Shared high scores</h3>
+      <ol id="finishList" class="score-list" aria-labelledby="finishBoardTitle" tabindex="0"></ol>
+      <p id="finishBoardMsg" aria-live="polite"></p>
     </div>
   </section>
 </main>
@@ -185,7 +194,7 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
   <button class="close" id="closeBoard" aria-label="Close high scores" type="button">×</button>
   <h2 id="boardTitle">High scores</h2>
   <div class="tabs"><button id="localTab" type="button" aria-pressed="true">This device</button><button id="globalTab" type="button" aria-pressed="false">Turkey Flop</button></div>
-  <ol id="list"></ol><p id="boardMsg" aria-live="polite"></p>
+  <ol class="score-list" id="list" tabindex="0" aria-label="High scores"></ol><p id="boardMsg" aria-live="polite"></p>
 
 </dialog>
 <script>
@@ -1107,9 +1116,13 @@ function touchDown() {
   state='landing'; landingLeft=.49; $('celebrate').hidden=true;
   HarvestAudio.play('land'); HarvestEffects.burst('leaves',bird.x,bird.y,unit*1.45);
   lastFlight={key:'thanksgiving-'+uniqueId(),score,distance:Math.floor(distance),date:Date.now()};
-  $('postForm').hidden=false;
+  $('postForm').hidden=Boolean(rememberedName);
+  $('retryScore').hidden=true;
+  $('finishList').replaceChildren();
+  $('finishList').scrollTop=0;
+  loadSharedBoard($('finishList'),$('finishBoardMsg'));
   $('postStatus').textContent='';
-  $('initials').value=rememberedName || (read(nameKey)===null && read('calveybird_name')) || '';
+  $('initials').value=rememberedName;
   $('switchPlayer').hidden=!rememberedName;
   $('postForm').querySelector('button').disabled=false;
   const priorBest=flights[0]?.score || 0;
@@ -1196,7 +1209,7 @@ canvas.addEventListener('pointerdown',e=>{
   if (state==='menu') launch(); else flap();
 });
 document.addEventListener('keydown',e=>{
-  if (board.open || e.altKey || e.ctrlKey || e.metaKey || (e.code!=='Space' && e.code!=='ArrowUp')) return;
+  if (e.target.closest('.score-list') || board.open || e.altKey || e.ctrlKey || e.metaKey || (e.code!=='Space' && e.code!=='ArrowUp')) return;
   if (e.target.closest('button') && !['startBtn','replay'].includes(e.target.id) && !['flying','ready'].includes(state)) return;
   if (e.target.closest('input') || e.target===$('soundBtn') || e.target===$('boardBtn')) return;
   e.preventDefault(); if (e.repeat) return;
@@ -1206,9 +1219,10 @@ document.addEventListener('visibilitychange',()=>{previousFrame=0;});
 
 // Original Calvey Bird arcade board, with a device-only history available offline.
 const sharedURL='https://calveybird-default-rtdb.firebaseio.com/leaderboard';
-let activeTab='global', requestVersion=0;
-function displayRows(rows) {
-  const list=$('list'); list.replaceChildren();
+let activeTab='global';
+const boardRequests=new WeakMap();
+function displayRows(rows,list=$('list')) {
+  list.replaceChildren();
   rows.forEach((row,i)=>{
     const li=document.createElement('li'), left=document.createElement('span'), rank=document.createElement('span'), right=document.createElement('strong');
     rank.className='rank'; rank.textContent=String(i+1).padStart(2,'0');
@@ -1218,7 +1232,8 @@ function displayRows(rows) {
 }
 const boardQuery=sharedURL+'.json?orderBy=%22%24key%22&startAt=%22thanksgiving-%22&endAt=%22thanksgiving-~%22';
 const nameKey='turkeyFlop_remembered_name';
-let rememberedName=read(nameKey) || '';
+let rememberedName=read(nameKey) ?? (read('calveybird_name') || '').trim();
+if (rememberedName) save(nameKey,rememberedName);
 function nameId(name) {
   return name.normalize('NFKC').trim().replace(/\s+/gu,' ').toLowerCase();
 }
@@ -1266,7 +1281,7 @@ async function saveSharedBest(candidate) {
   throw new Error('Concurrent score updates');
 }
 async function selectTab(which) {
-  activeTab=which; const version=++requestVersion;
+  activeTab=which; boardRequests.delete($('list'));
   $('localTab').setAttribute('aria-pressed',String(which==='local'));
   $('globalTab').setAttribute('aria-pressed',String(which==='global'));
   displayRows([]);
@@ -1276,23 +1291,30 @@ async function selectTab(which) {
     displayRows(rows.map(f=>({label:(f.name ? f.name+' · ' : '')+new Date(f.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+f.distance+' m',score:f.score})));
     return;
   }
-  $('boardMsg').textContent='Checking the shared leaderboard…';
+  await loadSharedBoard($('list'),$('boardMsg'));
+}
+async function loadSharedBoard(list,message) {
+  const request={};
+  boardRequests.set(list,request);
+  message.textContent=list.children.length?'':'Loading scores…';
   try {
     const {data}=await requestBoard(boardQuery);
-    if (version!==requestVersion || !board.open) return;
+    if (boardRequests.get(list)!==request) return;
     const rows=bestByName(Object.values(data || {}).filter(row=>typeof row?.name==='string')
       .map(row=>({...row,date:Number(row.timestamp) || 0})));
-    displayRows(rows.map(row=>({label:row.name,score:row.score})));
-    $('boardMsg').textContent=rows.length?'':'The shared leaderboard has no scores yet.';
-  } catch { if (version===requestVersion && board.open) $('boardMsg').textContent='The shared leaderboard is unavailable. Your flights are saved on this device.'; }
+    displayRows(rows.map(row=>({label:row.name,score:row.score})),list);
+    message.textContent=rows.length?'':'No shared scores yet.';
+  } catch {
+    if (boardRequests.get(list)===request) message.textContent='Couldn’t refresh the shared scores.';
+  }
 }
-$('boardBtn').onclick=$('finishBoard').onclick=()=>{
+$('boardBtn').onclick=()=>{
   board.showModal();
   selectTab('global');
 };
 $('closeBoard').onclick=()=>board.close();
 board.addEventListener('close',()=>{
-  requestVersion++; previousFrame=0;
+  boardRequests.delete($('list')); previousFrame=0;
   if (state==='ready' || state==='flying') stage.focus({preventScroll:true});
 });
 board.addEventListener('click',e=>{
@@ -1316,7 +1338,12 @@ $('switchPlayer').onclick=()=>{
   $('initials').value='';
   launch();
 };
+$('retryScore').onclick=()=>{
+  if (lastFlight && rememberedName && !lastFlight.posting) submitBest(rememberedName,lastFlight);
+};
 async function submitBest(name,flight) {
+  $('postForm').hidden=true;
+  $('retryScore').hidden=true;
   flight.name=name;
   recordFlight(flight);
   // Retain a failed personal best so a later, shorter flight can sync it.
@@ -1333,12 +1360,15 @@ async function submitBest(name,flight) {
     const best=await saveSharedBest(candidate);
     flight.posted=true;
     if (lastFlight===flight) {
-      $('postForm').hidden=true;
+      loadSharedBoard($('finishList'),$('finishBoardMsg'));
       $('postStatus').textContent=name+' · Shared best: '+best.score+(best.score===1?' gate.':' gates.');
     }
     if (board.open && activeTab==='global') selectTab('global');
   } catch {
-    if (lastFlight===flight) $('postStatus').textContent='Shared board unavailable. Try Save best score again.';
+    if (lastFlight===flight) {
+      $('retryScore').hidden=false;
+      $('postStatus').textContent='Score saved on this device. The shared board is offline.';
+    }
   } finally {
     flight.posting=false;
     if (lastFlight===flight) button.disabled=false;
