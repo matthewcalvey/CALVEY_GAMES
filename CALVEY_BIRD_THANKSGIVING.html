@@ -88,9 +88,9 @@ dialog h2 { margin:5px 30px 19px; font:bold 35px/1 var(--serif); letter-spacing:
 #list .rank { color:#866748; margin-right:12px; }
 #boardMsg,#postStatus { font:14px/1.45 var(--serif); }
 #boardMsg:empty,#postStatus:empty { display:none; }
-#postForm { border-top:1px solid #b59e79; margin-top:16px; padding-top:16px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:6px; }
+#postForm { margin:0 0 16px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:6px; }
 #postForm label { flex-basis:100%; font-size:15px; margin-bottom:4px; }
-#postForm input { width:10em; padding:8px; font:14px var(--mono); background:#fff7e6; border:1px solid #8e795e; }
+#postForm input { width:10em; padding:8px; font:16px var(--mono); background:#fff7e6; border:1px solid #8e795e; }
 #postForm .utility { background:var(--ink); color:var(--paper); border-radius:4px; }
 @container (min-aspect-ratio: 2.65) {
   .intro-copy { top:9cqh; }
@@ -170,7 +170,9 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
       <div class="section-label">Calvey Bird · Thanksgiving Edition</div><h2 id="finishedTitle">Flop landing!</h2>
       <p id="remark"></p>
       <div class="stats"><div><strong id="finalGates">0</strong><span>Gates</span></div><div><strong id="finalMeters">0 m</strong><span>Distance</span></div><div><strong id="finalBest">0</strong><span>Best</span></div></div>
-      <div class="actions"><button type="button" class="primary" id="replay"><svg class="icon" aria-hidden="true"><use href="#replayIcon"/></svg>Fly again</button><button type="button" class="subtle" id="menuBtn">Title screen</button></div>
+  <form id="postForm"><label for="initials">Name for the public high-score board</label><input id="initials" placeholder="Your name" maxlength="20" required autocomplete="nickname"><button type="submit" class="utility">Save score</button></form>
+  <p id="postStatus" aria-live="polite"></p>
+      <div class="actions"><button type="button" class="subtle" id="finishBoard">High scores</button><button type="button" class="primary" id="replay"><svg class="icon" aria-hidden="true"><use href="#replayIcon"/></svg>Fly again</button><button type="button" class="subtle" id="menuBtn">Title screen</button></div>
     </div>
   </section>
 </main>
@@ -182,10 +184,9 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
 <dialog id="board" aria-labelledby="boardTitle">
   <button class="close" id="closeBoard" aria-label="Close high scores" type="button">×</button>
   <h2 id="boardTitle">High scores</h2>
-  <div class="tabs"><button id="localTab" type="button" aria-pressed="true">This device</button><button id="globalTab" type="button" aria-pressed="false">Shared arcade</button></div>
+  <div class="tabs"><button id="localTab" type="button" aria-pressed="true">This device</button><button id="globalTab" type="button" aria-pressed="false">Turkey Flop</button></div>
   <ol id="list"></ol><p id="boardMsg" aria-live="polite"></p>
-  <form id="postForm" hidden><label for="initials">Post this flight to the shared Calvey Bird board</label><input id="initials" placeholder="Your name" maxlength="10" required autocomplete="nickname"><button type="submit" class="utility">Post score</button></form>
-  <p id="postStatus" aria-live="polite"></p>
+
 </dialog>
 <script>
 'use strict';
@@ -1096,15 +1097,22 @@ function point() {
     bird.spin=reducedMotion.matches?0:1;
   }
 }
+function recordFlight(flight) {
+  // Merge with other tabs when the browser shares storage.
+  const records=new Map([...flights,...getHistory(),flight].map(f=>[f.key,f]));
+  flights=[...records.values()].sort(rankFlights).slice(0,20); save(scoreKey,JSON.stringify(flights)); showBest();
+}
 function touchDown() {
   if (state!=='flying') return;
   state='landing'; landingLeft=.49; $('celebrate').hidden=true;
   HarvestAudio.play('land'); HarvestEffects.burst('leaves',bird.x,bird.y,unit*1.45);
   lastFlight={key:'thanksgiving-'+uniqueId(),score,distance:Math.floor(distance),date:Date.now()};
+  $('postForm').hidden=false;
+  $('postStatus').textContent='';
+  $('initials').value=read('calveybird_name') || '';
+  $('postForm').querySelector('button').disabled=false;
   const priorBest=flights[0]?.score || 0;
-  // Merge with other tabs when the browser shares storage.
-  const records=new Map([...flights,...getHistory(),lastFlight].map(f=>[f.key,f]));
-  flights=[...records.values()].sort(rankFlights).slice(0,20); save(scoreKey,JSON.stringify(flights)); showBest();
+  recordFlight(lastFlight);
   $('finalGates').textContent=score; $('finalMeters').textContent=lastFlight.distance+' m'; $('finalBest').textContent=flights[0].score;
   $('remark').textContent=score>priorBest?'A new personal best. Save this turkey a slice of pie!':
     score>=10?'That flight earned a second helping.':score>0?'There’s a place for you at the harvest table.':'A soft landing in the pumpkin patch.';
@@ -1196,7 +1204,7 @@ document.addEventListener('visibilitychange',()=>{previousFrame=0;});
 
 // Original Calvey Bird arcade board, with a device-only history available offline.
 const sharedURL='https://calveybird-default-rtdb.firebaseio.com/leaderboard';
-let activeTab='local', requestVersion=0, posting=false;
+let activeTab='global', requestVersion=0;
 function displayRows(rows) {
   const list=$('list'); list.replaceChildren();
   rows.forEach((row,i)=>{
@@ -1218,30 +1226,29 @@ async function selectTab(which) {
   activeTab=which; const version=++requestVersion;
   $('localTab').setAttribute('aria-pressed',String(which==='local'));
   $('globalTab').setAttribute('aria-pressed',String(which==='global'));
-  $('postForm').hidden=which!=='global' || !lastFlight || lastFlight.score<1 || lastFlight.posted;
-  $('postStatus').textContent=''; displayRows([]);
+  displayRows([]);
   if (which==='local') {
     $('boardMsg').textContent=flights.length?'':'Finish a flight to record your first score.';
-    displayRows(flights.map(f=>({label:new Date(f.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+f.distance+' m',score:f.score})));
+    displayRows(flights.map(f=>({label:(f.name ? f.name+' · ' : '')+new Date(f.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+f.distance+' m',score:f.score})));
     return;
   }
   $('boardMsg').textContent='Checking the shared leaderboard…';
   try {
-    const data=await requestBoard(sharedURL+'.json?orderBy=%22score%22&limitToLast=200');
+    const data=await requestBoard(sharedURL+'.json?orderBy=%22%24key%22&startAt=%22thanksgiving-%22&endAt=%22thanksgiving-~%22');
     if (version!==requestVersion || !board.open) return;
-    const byName=new Map();
+    const rows=[];
     for (const item of Object.values(data || {})) {
       if (!item || !Number.isFinite(item.score)) continue;
-      const label=String(item.name || 'ANON').toUpperCase().slice(0,10);
-      byName.set(label,Math.max(byName.get(label) || 0,item.score));
+      const label=String(item.name || 'Anonymous').slice(0,20);
+      rows.push({label,score:item.score,distance:Number(item.distance) || 0,date:Number(item.timestamp) || 0});
     }
-    const rows=Array.from(byName,([label,score])=>({label,score})).sort((a,b)=>b.score-a.score).slice(0,50);
-    displayRows(rows); $('boardMsg').textContent=rows.length?'':'The shared leaderboard has no scores yet.';
+    rows.sort(rankFlights);
+    displayRows(rows.slice(0,50)); $('boardMsg').textContent=rows.length?'':'The shared leaderboard has no scores yet.';
   } catch { if (version===requestVersion && board.open) $('boardMsg').textContent='The shared leaderboard is unavailable. Your flights are saved on this device.'; }
 }
-$('boardBtn').onclick=()=>{
-  board.showModal(); $('initials').value=(read('calveybird_name') || '').slice(0,10);
-  selectTab('local');
+$('boardBtn').onclick=$('finishBoard').onclick=()=>{
+  board.showModal();
+  selectTab('global');
 };
 $('closeBoard').onclick=()=>board.close();
 board.addEventListener('close',()=>{
@@ -1254,16 +1261,31 @@ board.addEventListener('click',e=>{
 });
 $('localTab').onclick=()=>selectTab('local'); $('globalTab').onclick=()=>selectTab('global');
 $('postForm').onsubmit=async e=>{
-  e.preventDefault(); const name=$('initials').value.trim().toUpperCase().slice(0,10), flight=lastFlight;
-  if (!name || !flight || flight.posted || posting) return;
-  posting=true; const button=e.currentTarget.querySelector('button'); button.disabled=true;
-  $('postStatus').textContent='Posting score…';
+  e.preventDefault();
+  const input=$('initials'), name=input.value.trim(), flight=lastFlight;
+  if (!flight || flight.posted || flight.posting) return;
+  if (!name) { input.value=''; input.reportValidity(); return; }
+  flight.name=name;
+  recordFlight(flight);
+  save('calveybird_name',name);
+  flight.posting=true;
+  const button=e.currentTarget.querySelector('button');
+  button.disabled=true;
+  $('postStatus').textContent='Saving score…';
   try {
     await requestBoard(sharedURL+'/'+flight.key+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,score:flight.score,distance:flight.distance,playerId,timestamp:{'.sv':'timestamp'}})});
-    flight.posted=true; save('calveybird_name',name);
-    if (board.open && activeTab==='global' && lastFlight===flight) { await selectTab('global'); if (activeTab==='global' && board.open) $('postStatus').textContent='Score posted.'; }
-  } catch { if (board.open && activeTab==='global') $('postStatus').textContent='Couldn’t post that score. You can try again.'; }
-  finally { posting=false; button.disabled=false; }
+    flight.posted=true;
+    if (lastFlight===flight) {
+      $('postForm').hidden=true;
+      $('postStatus').textContent='Score saved to the Turkey Flop board.';
+    }
+    if (board.open && activeTab==='global') selectTab('global');
+  } catch {
+    if (lastFlight===flight) $('postStatus').textContent='Shared board unavailable. Try Save score again.';
+  } finally {
+    flight.posting=false;
+    if (lastFlight===flight) button.disabled=false;
+  }
 };
 new ResizeObserver(resize).observe(stage);
 resize(); requestAnimationFrame(frame);
