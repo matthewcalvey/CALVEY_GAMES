@@ -135,6 +135,9 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
 #finishBoardTitle { margin:16px 0 6px; font-size:19px; }
 #finishBoardMsg:empty { display:none; }
 #retryScore { margin:0 auto 8px; }
+#profile { margin-top:16px; }
+#profile summary { cursor:pointer; font:700 13px var(--mono); }
+#profile form { margin-top:12px; }
 </style>
 </head>
 <body>
@@ -175,10 +178,10 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
       <div class="section-label">Calvey Bird · Thanksgiving Edition</div><h2 id="finishedTitle">Flop landing!</h2>
       <p id="remark"></p>
       <div class="stats"><div><strong id="finalGates">0</strong><span>Gates</span></div><div><strong id="finalMeters">0 m</strong><span>Distance</span></div><div><strong id="finalBest">0</strong><span>Best</span></div></div>
-  <form id="postForm"><label for="initials">Remember my name for the public leaderboard</label><input id="initials" placeholder="Your name" maxlength="20" required autocomplete="nickname"><button type="submit" class="utility">Save best score</button></form>
+
   <p id="postStatus" aria-live="polite"></p>
       <button type="button" id="retryScore" class="subtle" hidden>Retry score save</button>
-      <div class="actions"><button type="button" class="subtle" id="switchPlayer" hidden>Next player</button><button type="button" class="primary" id="replay"><svg class="icon" aria-hidden="true"><use href="#replayIcon"/></svg>Fly again</button><button type="button" class="subtle" id="menuBtn">Title screen</button></div>
+      <div class="actions"><button type="button" class="primary" id="replay"><svg class="icon" aria-hidden="true"><use href="#replayIcon"/></svg>Fly again</button><button type="button" class="subtle" id="menuBtn">Title screen</button></div>
       <h3 id="finishBoardTitle">Shared high scores</h3>
       <ol id="finishList" class="score-list" aria-labelledby="finishBoardTitle" tabindex="0"></ol>
       <p id="finishBoardMsg" aria-live="polite"></p>
@@ -196,6 +199,12 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
   <div class="tabs"><button id="localTab" type="button" aria-pressed="true">This device</button><button id="globalTab" type="button" aria-pressed="false">Turkey Flop</button></div>
   <ol class="score-list" id="list" tabindex="0" aria-label="High scores"></ol><p id="boardMsg" aria-live="polite"></p>
 
+  <details id="profile"><summary>Player name</summary>
+    <form id="postForm"><label for="initials">Public leaderboard name</label>
+      <input id="initials" maxlength="20" required autocomplete="nickname">
+      <button type="submit" class="utility">Done</button>
+    </form>
+  </details>
 </dialog>
 <script>
 'use strict';
@@ -1116,15 +1125,11 @@ function touchDown() {
   state='landing'; landingLeft=.49; $('celebrate').hidden=true;
   HarvestAudio.play('land'); HarvestEffects.burst('leaves',bird.x,bird.y,unit*1.45);
   lastFlight={key:'thanksgiving-'+uniqueId(),score,distance:Math.floor(distance),date:Date.now()};
-  $('postForm').hidden=Boolean(rememberedName);
   $('retryScore').hidden=true;
   $('finishList').replaceChildren();
   $('finishList').scrollTop=0;
   loadSharedBoard($('finishList'),$('finishBoardMsg'));
   $('postStatus').textContent='';
-  $('initials').value=rememberedName;
-  $('switchPlayer').hidden=!rememberedName;
-  $('postForm').querySelector('button').disabled=false;
   const priorBest=flights[0]?.score || 0;
   recordFlight(lastFlight);
   if (rememberedName) submitBest(rememberedName,lastFlight);
@@ -1232,7 +1237,8 @@ function displayRows(rows,list=$('list')) {
 }
 const boardQuery=sharedURL+'.json?orderBy=%22%24key%22&startAt=%22thanksgiving-%22&endAt=%22thanksgiving-~%22';
 const nameKey='turkeyFlop_remembered_name';
-let rememberedName=read(nameKey) ?? (read('calveybird_name') || '').trim();
+const latestNamedFlight=flights.filter(f=>typeof f.name==='string' && f.name.trim()).sort((a,b)=>b.date-a.date)[0];
+let rememberedName=(read(nameKey) || read('calveybird_name') || latestNamedFlight?.name || '').trim();
 if (rememberedName) save(nameKey,rememberedName);
 function nameId(name) {
   return name.normalize('NFKC').trim().replace(/\s+/gu,' ').toLowerCase();
@@ -1300,8 +1306,12 @@ async function loadSharedBoard(list,message) {
   try {
     const {data}=await requestBoard(boardQuery);
     if (boardRequests.get(list)!==request) return;
-    const rows=bestByName(Object.values(data || {}).filter(row=>typeof row?.name==='string')
-      .map(row=>({...row,date:Number(row.timestamp) || 0})));
+    const entries=Object.values(data || {}).filter(row=>typeof row?.name==='string' && row.name.trim());
+    if (!rememberedName) {
+      const own=entries.filter(row=>row.playerId===playerId).sort((a,b)=>b.timestamp-a.timestamp)[0];
+      if (own) usePlayerName(own.name);
+    }
+    const rows=bestByName(entries.map(row=>({...row,date:Number(row.timestamp) || 0})));
     displayRows(rows.map(row=>({label:row.name,score:row.score})),list);
     message.textContent=rows.length?'':'No shared scores yet.';
   } catch {
@@ -1309,6 +1319,8 @@ async function loadSharedBoard(list,message) {
   }
 }
 $('boardBtn').onclick=()=>{
+  $('profile').open=false;
+  $('initials').value=rememberedName;
   board.showModal();
   selectTab('global');
 };
@@ -1322,27 +1334,23 @@ board.addEventListener('click',e=>{
   const r=board.getBoundingClientRect(); if (e.clientX<r.left || e.clientX>r.right || e.clientY<r.top || e.clientY>r.bottom) board.close();
 });
 $('localTab').onclick=()=>selectTab('local'); $('globalTab').onclick=()=>selectTab('global');
-$('postForm').onsubmit=async e=>{
+function usePlayerName(name) {
+  rememberedName=name.trim();
+  save(nameKey,rememberedName);
+  if (!$('profile').open) $('initials').value=rememberedName;
+  if (lastFlight && !lastFlight.name) submitBest(rememberedName,lastFlight);
+}
+$('postForm').onsubmit=e=>{
   e.preventDefault();
-  const input=$('initials'), name=input.value.trim(), flight=lastFlight;
-  if (!flight || flight.posted || flight.posting) return;
-  if (!name || !nameId(name)) { input.value=''; input.reportValidity(); return; }
-  rememberedName=name;
-  save(nameKey,name);
-  $('switchPlayer').hidden=false;
-  submitBest(name,flight);
-};
-$('switchPlayer').onclick=()=>{
-  rememberedName='';
-  save(nameKey,'');
-  $('initials').value='';
-  launch();
+  const input=$('initials'), name=input.value.trim();
+  if (!nameId(name)) { input.value=''; input.reportValidity(); return; }
+  usePlayerName(name);
+  $('profile').open=false;
 };
 $('retryScore').onclick=()=>{
-  if (lastFlight && rememberedName && !lastFlight.posting) submitBest(rememberedName,lastFlight);
+  if (lastFlight?.name && !lastFlight.posting) submitBest(lastFlight.name,lastFlight);
 };
 async function submitBest(name,flight) {
-  $('postForm').hidden=true;
   $('retryScore').hidden=true;
   flight.name=name;
   recordFlight(flight);
@@ -1353,8 +1361,6 @@ async function submitBest(name,flight) {
   const candidate=improves(flight,previous)?{name,score:flight.score,distance:flight.distance}:previous;
   save(personalKey,JSON.stringify(candidate));
   flight.posting=true;
-  const button=$('postForm').querySelector('button');
-  button.disabled=true;
   $('postStatus').textContent='Saving score…';
   try {
     const best=await saveSharedBest(candidate);
@@ -1371,7 +1377,6 @@ async function submitBest(name,flight) {
     }
   } finally {
     flight.posting=false;
-    if (lastFlight===flight) button.disabled=false;
   }
 }
 new ResizeObserver(resize).observe(stage);
