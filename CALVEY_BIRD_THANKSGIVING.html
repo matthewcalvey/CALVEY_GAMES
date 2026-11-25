@@ -138,6 +138,9 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
 #profile { margin-top:16px; }
 #profile summary { cursor:pointer; font:700 13px var(--mono); }
 #profile form { margin-top:12px; }
+.foot { justify-content:flex-end; }
+#remark { font:italic clamp(16px,2.3vw,21px)/1.35 Georgia,serif; margin:8px auto 14px; max-width:27em; }
+#celebrate { top:14%; border:2px solid #60334e; border-radius:20px; background:#fff4bc; color:#67304f; padding:6px 15px; box-shadow:0 3px #60334e; }
 </style>
 </head>
 <body>
@@ -166,16 +169,14 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
     <div class="intro-copy">
       <div class="section-label">Calvey Bird <span aria-hidden="true">/</span> Thanksgiving Edition</div>
       <h1 id="title"><span>TURKEY</span> <em>FLOP</em></h1>
-      <p class="intro-desc">Flap those tiny wings through the harvest gates.</p>
-      <div class="launch" id="desktopLaunch"><button class="primary" type="button" id="startBtn"><svg class="icon" aria-hidden="true"><use href="#play"/></svg>Start flight</button></div>
+      <div class="launch" id="desktopLaunch"><button class="primary" type="button" id="startBtn"><svg class="icon" aria-hidden="true"><use href="#play"/></svg>TAP TO FLAP</button></div>
     </div>
   </section>
   <div class="hud" id="hud" hidden><span id="score">0</span><span class="score-label">Gates</span></div>
-  <div id="readyHint" hidden>Tap or press <kbd>Space</kbd> to flap</div>
   <div id="celebrate" aria-live="polite" hidden>Harvest time!</div>
   <section class="overlay" id="finish" aria-labelledby="finishedTitle" hidden>
     <div class="card">
-      <div class="section-label">Calvey Bird · Thanksgiving Edition</div><h2 id="finishedTitle">Flop landing!</h2>
+      <h2 id="finishedTitle">Flop landing!</h2>
       <p id="remark"></p>
       <div class="stats"><div><strong id="finalGates">0</strong><span>Gates</span></div><div><strong id="finalMeters">0 m</strong><span>Distance</span></div><div><strong id="finalBest">0</strong><span>Best</span></div></div>
 
@@ -189,7 +190,6 @@ h1 em { font-style:normal; font-weight:1000; letter-spacing:-.035em; color:#ffad
   </section>
 </main>
 <footer class="foot">
-  <div><span class="footer-title">Flight controls</span><span class="divider" aria-hidden="true"></span><kbd>Space</kbd><span>or tap to flap</span></div>
   <div><svg class="icon" aria-hidden="true"><use href="#cup"/></svg><span class="best-label">Personal best</span><span class="divider" aria-hidden="true"></span><span id="best">0 gates</span></div>
 </footer>
 </div>
@@ -537,6 +537,88 @@ const { drawValley, drawGate } = (() => {
             c.restore();
         }
     }
+    // Painted behind the gate silhouettes so weather never conceals a playable gap.
+    function flightSky(c,w,h,time,scroll,index) {
+        const skies=[
+            ['#61cce7','#c9ffdd'],['#42b5d7','#ffed9b'],['#5964ac','#f4d6e4'],
+            ['#a2519f','#ffae70'],['#342b72','#e879a0'],['#131e50','#5850a2'],
+            ['#142653','#457b98'],['#7d61be','#ffd586']
+        ];
+        const colors=skies[index], g=c.createLinearGradient(0,0,0,h*.73);
+        g.addColorStop(0,colors[0]); g.addColorStop(1,colors[1]); c.fillStyle=g; c.fillRect(0,0,w,h);
+        const u=Math.min(w/420,h/580), wrap=(v,n)=>((v%n)+n)%n;
+        const night=index>=4 && index<=6;
+        const disc=(x,y,r,color)=>{c.fillStyle=color;c.beginPath();c.arc(x,y,r,0,tau);c.fill();};
+        if(night){
+            for(let i=0;i<75;i++){
+                const x=wrap(i*137.51-scroll*.012,w), y=h*(.035+.50*((i*47%79)/79));
+                const radius=u*(i%7===0?2.1:1.1);
+                disc(x,y,radius,i%3?'#fff1ca':'#aaf5fa');
+                if(i%7===0){c.fillRect(x-radius*.35,y-radius*2.5,radius*.7,radius*5);}
+            }
+            disc(w*.76,h*.25,23*u,'#fff1b5');
+            disc(w*.76-7*u,h*.25-6*u,3*u,'#e4c999');
+            disc(w*.76+8*u,h*.25+5*u,4*u,'#e4c999');
+        }else disc(w*.74,h*(index===3?.43:.23),27*u,index===3?'#ffe08a':'#fff3b4');
+        if(index===2 || index===7){
+            const bands=['#ff7686','#ffac59','#ffe378','#79dfa8','#72cced','#bc94e4'];
+            bands.forEach((color,i)=>{c.beginPath();c.arc(w*.77,h*.53,(85-i*4)*u,Math.PI,tau);
+                c.strokeStyle=color;c.lineWidth=4.5*u;c.stroke();});
+        }
+        if(index===6){
+            for(let j=0;j<3;j++){
+                c.beginPath();
+                for(let i=0;i<=48;i++){
+                    const x=i*w/48,y=h*(.16+j*.07+.055*Math.sin(i*.13+time*.25+j));
+                    if(i===0)c.moveTo(x,y);else c.lineTo(x,y);
+                }
+                for(let i=48;i>=0;i--){
+                    c.lineTo(i*w/48,h*(.19+j*.07+.055*Math.sin(i*.13+time*.25+j)+.018*Math.sin(i*.48)));
+                }
+                c.closePath();c.fillStyle=['#77f4c088','#68d8f188','#df8cff88'][j];c.fill();
+            }
+        }
+        if(!night){
+            for(let i=0;i<5;i++){
+                const x=wrap(w*(i*.31+.12)-time*(4+i)*u-scroll*.018,w+140*u)-70*u;
+                cloud(c,x,h*(.12+(i%3)*.11),u*(.36+.09*(i%3)));
+            }
+        }
+        if(index===1 || index===7){
+            for(let i=0;i<3;i++){
+                const x=wrap(w*.24+i*w*.39-scroll*.05,w+90*u)-45*u,y=h*(.31+.065*Math.sin(i+time*.3));
+                c.save();c.translate(x,y);c.scale(u*(.6+i*.14),u*(.6+i*.14));
+                c.strokeStyle='#584256';c.lineWidth=1.4;c.strokeRect(-5,6,10,18);
+                disc(0,0,15,['#ff6966','#ffbd54','#b07adb'][i]);c.fillStyle='#fff0ae';
+                c.beginPath();c.ellipse(0,0,5,15,0,0,tau);c.fill();c.fillStyle='#945438';c.fillRect(-6,20,12,7);c.restore();
+            }
+        }
+        if(index===2){
+            c.beginPath();
+            for(let i=0;i<45;i++){
+                const x=wrap(i*139-time*58*u,w),y=wrap(i*97+time*220*u,h*.68);
+                c.moveTo(x,y);c.lineTo(x-3*u,y+8*u);
+            }
+            c.strokeStyle='#d9f6ffad';c.lineWidth=1.5*u;c.stroke();
+        }
+        if(index===5 || index===6){
+            const phase=wrap(time,6)/1.4;
+            if(phase<1){
+                const x=w*(.98-.85*phase),y=h*(.09+.24*phase);
+                const trail=c.createLinearGradient(x,y,x+42*u,y-14*u);
+                trail.addColorStop(0,'#fff7b1');trail.addColorStop(1,'#fff7b100');
+                c.strokeStyle=trail;c.lineWidth=3*u;c.beginPath();c.moveTo(x,y);c.lineTo(x+42*u,y-14*u);c.stroke();
+                disc(x,y,2.5*u,'#fff7ce');
+            }
+        }
+        // Layered peaks emerge beyond the original harvest valley at sunset.
+        if(index>=3){
+            for(let j=0;j<2;j++){
+                ridge(c,w,h,f=>h*(.53+j*.05+.074*Math.sin(f*8+scroll*.00022+j)+.046*Math.cos(f*14+j)),
+                    night?['#494776','#393b65'][j]:['#bf81a4','#a86c89'][j]);
+            }
+        }
+    }
     function drawValley(c,w,h,time,scroll,mode) {
         if(w<=0 || h<=0) return;
         if(!scene || scene.w!==w || scene.h!==h) scene=build(w,h);
@@ -545,6 +627,16 @@ const { drawValley, drawGate } = (() => {
         const travel=Number.isFinite(scroll)?scroll:0;
         c.save();
         paintLayer(c,scene.sky,W,w,crop+travel*.025);
+        if(mode==='play' && skyLevel>0){
+            const layer=Math.floor(skyLevel), fraction=skyLevel-layer;
+            const phase=n=>1+(n-1)%7;
+            const t=reducedMotion.matches?0:time;
+            if(layer>0) flightSky(c,w,h,t,travel,phase(layer));
+            if(fraction>0){
+                c.save();c.globalAlpha=fraction;
+                flightSky(c,w,h,t,travel,phase(layer+1));c.restore();
+            }
+        }
         // Small distant geese animate independently of the illustrated background plates.
         const birds=[[.20,.45,0],[.214,.442,1.1],[.228,.448,.4],[.86,.20,2],[.88,.191,.4]];
         const unit=Math.min(h/800,W/1200);
@@ -558,6 +650,13 @@ const { drawValley, drawGate } = (() => {
         paintLayer(c,scene.hills,W,w,crop+travel*.073);
         paintLayer(c,scene.fields,W,w,crop+travel*.205);
         paintLayer(c,scene.fore,W,w,crop+travel*.43);
+        if(mode==='play' && skyLevel>0){
+            const shades=[0,0,.08,.12,.32,.46,.34,.04];
+            const n=Math.floor(skyLevel), f=skyLevel-n;
+            const shade=k=>k===0?0:shades[1+(k-1)%7];
+            c.fillStyle='rgba(42,26,81,'+((1-f)*shade(n)+f*shade(n+1))+')';
+            c.fillRect(0,0,w,h);
+        }
         c.restore();
     }
     function drawGate(c,x,w,topEnd,bottomStart,h,time) {
@@ -623,7 +722,7 @@ const { drawValley, drawGate } = (() => {
 function drawTurkey(c,x,y,scale,pose) {
   const t=pose.time, beat=Math.sin(pose.flap), ink='#673523';
   c.save(); c.translate(x,y); c.rotate(pose.tilt); c.scale(scale,scale);
-  const squash=.024*beat;
+  const squash=.04*beat;
   c.scale(1+squash,1-squash);
   c.lineCap='round'; c.lineJoin='round';
   function oval(x,y,rx,ry,fill,stroke=ink,weight=3,angle=0) {
@@ -639,7 +738,7 @@ function drawTurkey(c,x,y,scale,pose) {
   // Rounded candy-corn tips peek out behind the chestnut body.
   const feathers=['#e35538','#ff913f','#ca5530','#ffc457','#ed6432'];
   for(let i=0;i<5;i++) {
-    c.save(); c.translate(-36,8); c.rotate(-1.78+i*.326+.035*beat);
+    c.save(); c.translate(-36,8); c.rotate(-1.78+i*.326+(i-2)*.051*beat+.04*Math.sin(t*4+i*.7));
     oval(0,-39,13.4,40,feathers[i]);
     shape('M-11 -59 Q-1 -51 11 -60 Q12 -64 10 -68 Q0 -60 -10 -68 Z','#ffe495',null);
     shape('M0 -15 Q-2 -29 0 -49',null,'#ae5830',2);
@@ -647,7 +746,7 @@ function drawTurkey(c,x,y,scale,pose) {
   }
   // Two small feet paddle under the belly.
   for(const [fx,fy,phase] of [[-24,54,0],[10,56,2]]) {
-    c.save(); c.translate(fx,fy); c.rotate(.18*Math.sin(t*5+phase));
+    c.save(); c.translate(fx,fy); c.rotate(.36*Math.sin(t*7+phase)+beat*.12);
     shape('M-2 -3 Q2 -3 4 2 L3 9 Q11 12 7 15 Q4 17 -1 12 Q-5 18 -8 15 Q-10 13 -5 9 Z','#ffa52f');
     c.restore();
   }
@@ -657,7 +756,7 @@ function drawTurkey(c,x,y,scale,pose) {
   shape('M-37 39 Q-18 54 8 54 Q26 54 39 46',null,'#e99653',3);
   // Little feather crest and tiny paddle-shaped wing.
   shape('M-21 -61 C-32 -69 -35 -80 -29 -80 Q-22 -80 -13 -70 C-18 -86 -9 -88 -4 -78 Q-1 -71 0 -65','#f4a65d');
-  c.save(); c.translate(-45,12); c.rotate(-.20+.91*beat);
+  c.save(); c.translate(-45,12); c.rotate(-.24+1.05*beat); c.scale(1.22,1+.18*beat);
   shape('M3 -5 C-4 -12 -16 -17 -21 -13 Q-25 -9 -18 -4 Q-27 -7 -25 -1 Q-24 4 -16 6 Q-22 7 -17 12 C-9 17 3 9 5 4','#bc653c');
   shape('M-15 -8 Q-12 -4 -7 -3',null,'#ffd18a',2.6); c.restore();
   // Downy cream eye surrounds and chocolate button eyes, like the original bird.
@@ -985,7 +1084,8 @@ showBest(); soundUI();
 let w=0,h=0,unit=1,dpr=1,portrait=false;
 let state='menu', clock=0, previousFrame=0, elapsed=0, distance=0, travel=0;
 let score=0, flaps=0, celebrationLeft=0, landingLeft=0, lastGobble=0, nextDrop=0, drops=0;
-let gates=[];
+let gates=[],skyLevel=0;
+const skyNames=['Balloon meadow','Rainbow shower','Peach sunset','Firefly hour','Shooting stars','Aurora valley','Rainbow sunrise'];
 const bird={x:0,y:0,vy:0,tilt:0,wing:0,spin:0,wattle:0,wattleSpeed:0};
 function resize() {
   const oldH=h, oldUnit=unit, oldX=bird.x;
@@ -1088,17 +1188,17 @@ function fillGates() {
 }
 function launch() {
   HarvestAudio.unlock(); HarvestEffects.clear();
-  score=flaps=elapsed=distance=travel=drops=celebrationLeft=0; nextDrop=5.5; lastGobble=0;
+  skyLevel=0; score=flaps=elapsed=distance=travel=drops=celebrationLeft=0; nextDrop=5.5; lastGobble=0;
   bird.y=h*.48; bird.vy=bird.tilt=bird.wing=bird.spin=bird.wattle=bird.wattleSpeed=0;
   gates=[]; fillGates(); lastFlight=null; state='ready';
   $('intro').hidden=$('finish').hidden=$('celebrate').hidden=true;
   $('hud').hidden=false; $('score').textContent='0';
-  $('readyHint').hidden=false; stage.focus({preventScroll:true});
-  HarvestAudio.play('gobble');
+  stage.focus({preventScroll:true});
+  HarvestAudio.play('gobble'); flap();
 }
 function flap() {
   if (state!=='ready' && state!=='flying') return;
-  HarvestAudio.unlock(); state='flying'; $('readyHint').hidden=true; flaps++;
+  HarvestAudio.unlock(); state='flying'; flaps++;
   bird.vy=-6.75*60*unit; bird.wing=1; bird.wattleSpeed=Math.max(-10,bird.wattleSpeed-8);
   HarvestAudio.play('flap');
   const x=bird.x-15*unit,y=bird.y+4*unit;
@@ -1109,8 +1209,10 @@ function flap() {
 }
 function point() {
   score++; $('score').textContent=score; HarvestAudio.play('score');
-  if (score%10===0) {
-    celebrationLeft=1.3; $('celebrate').hidden=false; $('celebrate').textContent=score===10?'Harvest time!':'Happy Thanksgiving!';
+  if (score%5===0) {
+    celebrationLeft=1.65; $('celebrate').hidden=false;
+    $('celebrate').textContent=skyNames[(score/5-1)%skyNames.length]+'!';
+    if(!reducedMotion.matches) HarvestEffects.burst('feathers',bird.x-14*unit,bird.y,unit);
     HarvestAudio.play('harvest'); HarvestEffects.burst('harvest',bird.x,bird.y,unit*1.3);
     bird.spin=reducedMotion.matches?0:1;
   }
@@ -1120,6 +1222,17 @@ function recordFlight(flight) {
   const records=new Map([...flights,...getHistory(),flight].map(f=>[f.key,f]));
   flights=[...records.values()].sort(rankFlights).slice(0,20); save(scoreKey,JSON.stringify(flights)); showBest();
 }
+const landingQuotes=[
+  'Even the shortest flight starts with a little courage.',
+  'Give your next try the same chance you gave your first.',
+  'Leave room for a little wobble.',
+  'You only have to find the next opening.',
+  'A soft landing is a fine place to begin again.',
+  'Look how far those little wings took you.',
+  'The sky has room for your kind of flying.',
+  'You can be brave and flap wildly at the same time.'
+];
+let quoteIndex=Math.floor(Math.random()*landingQuotes.length);
 function touchDown() {
   if (state!=='flying') return;
   state='landing'; landingLeft=.49; $('celebrate').hidden=true;
@@ -1130,12 +1243,11 @@ function touchDown() {
   $('finishList').scrollTop=0;
   loadSharedBoard($('finishList'),$('finishBoardMsg'));
   $('postStatus').textContent='';
-  const priorBest=flights[0]?.score || 0;
   recordFlight(lastFlight);
   if (rememberedName) submitBest(rememberedName,lastFlight);
   $('finalGates').textContent=score; $('finalMeters').textContent=lastFlight.distance+' m'; $('finalBest').textContent=flights[0].score;
-  $('remark').textContent=score>priorBest?'A new personal best. Save this turkey a slice of pie!':
-    score>=10?'That flight earned a second helping.':score>0?'There’s a place for you at the harvest table.':'A soft landing in the pumpkin patch.';
+  $('remark').textContent='“'+landingQuotes[quoteIndex]+'”';
+  quoteIndex=(quoteIndex+1+Math.floor(Math.random()*(landingQuotes.length-1)))%landingQuotes.length;
 }
 function update(dt) {
   if (state==='landing') {
@@ -1146,6 +1258,7 @@ function update(dt) {
     return;
   }
   if (state!=='flying') return;
+  skyLevel=Math.min(Math.floor(score/5),skyLevel+dt*.85);
   elapsed+=dt; distance+=12*dt;
   const speed=Math.min(3.5+Math.floor(score/10)*.15,6.5)*60*unit;
   travel+=speed*dt;
@@ -1185,9 +1298,31 @@ function render() {
   if (title) { titleArt(t); return; }
   const gateWidth=70*unit;
   for (const g of gates) if (g.x<=w && g.x+gateWidth>=0) drawGate(ctx,g.x,gateWidth,g.center-g.gap/2,g.center+g.gap/2,h,t);
+  if(skyLevel>=4 && (Math.floor(skyLevel)-1)%7>=3 && (Math.floor(skyLevel)-1)%7<=5 && !reducedMotion.matches){
+    ctx.save();ctx.fillStyle='#fff59c';
+    for(let i=0;i<18;i++){
+      const x=((i*117-travel*.27)%(w+10)+w+10)%(w+10);
+      const y=h*(.59+.27*(i%5)/5)+Math.sin(t*1.6+i)*8*unit;
+      ctx.globalAlpha=.55+.3*Math.sin(t*2+i);ctx.beginPath();ctx.arc(x,y,1.9*unit,0,TAU);ctx.fill();
+    }
+    ctx.restore();
+  }
+  if(score>=10 && celebrationLeft>0 && !reducedMotion.matches){
+    const progress=1-celebrationLeft/1.65;
+    ctx.save();ctx.globalAlpha=1-progress;
+    const colors=['#ff758d','#ffe26c','#7af1d2','#aea2ff','#ffab69'];
+    for(let i=0;i<24;i++){
+      const angle=i*2.4, spread=(18+(i%5)*7)*unit*progress;
+      const x=w*(i%2?.78:.22)+Math.cos(angle)*spread;
+      const y=h*.3+Math.sin(angle)*spread+progress*progress*23*unit;
+      ctx.fillStyle=colors[i%colors.length];ctx.save();ctx.translate(x,y);ctx.rotate(angle+progress*4);
+      ctx.fillRect(-2*unit,-unit,4*unit,2.2*unit);ctx.restore();
+    }
+    ctx.restore();
+  }
   HarvestEffects.draw(ctx);
   const ready=state==='ready';
-  const wing=ready?t*3.5:.3+bird.wing*5.6+Math.sin(t*5)*.15;
+  const wing=ready?t*3.5:t*7.5+bird.wing*4.2;
   const angle=bird.tilt+(bird.spin?TAU*(1-bird.spin):0);
   drawTurkey(ctx,bird.x,bird.y+(ready?Math.sin(t*2)*3*unit:0),unit*.265,{time:t,flap:wing,wattle:ready?.34*Math.sin(t*3.5-.8):bird.wattle,tilt:angle,blink:t%4.2>4.02});
 }
@@ -1205,7 +1340,7 @@ function frame(now) {
 }
 function menu() {
   state='menu'; travel=0; $('intro').hidden=false;
-  $('hud').hidden=$('finish').hidden=$('readyHint').hidden=$('celebrate').hidden=true;
+  $('hud').hidden=$('finish').hidden=$('celebrate').hidden=true;
   $('startBtn').focus({preventScroll:true}); render();
 }
 $('startBtn').onclick=launch; $('replay').onclick=launch; $('menuBtn').onclick=menu;
