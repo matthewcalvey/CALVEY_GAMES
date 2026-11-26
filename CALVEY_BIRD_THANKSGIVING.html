@@ -1220,7 +1220,7 @@ function point() {
 function recordFlight(flight) {
   // Merge with other tabs when the browser shares storage.
   const records=new Map([...flights,...getHistory(),flight].map(f=>[f.key,f]));
-  flights=[...records.values()].sort(rankFlights).slice(0,20); save(scoreKey,JSON.stringify(flights)); showBest();
+  flights=[...records.values()].sort(rankFlights); save(scoreKey,JSON.stringify(flights)); showBest();
 }
 const landingQuotes=[
   'Even the shortest flight starts with a little courage.',
